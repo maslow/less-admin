@@ -1,8 +1,8 @@
 {
-  "name": "vue-element-admin",
-  "version": "4.4.0",
+  "name": "less-admin",
+  "version": "0.1.0",
   "description": "A magical vue admin. An out-of-box UI solution for enterprise applications. Newest development stack of vue. Lots of awesome features",
-  "author": "Pan <panfree23@gmail.com>",
+  "author": "Maslow <wangfugen@126.com>",
   "scripts": {
     "dev": "vue-cli-service serve",
     "lint": "eslint --ext .js,.vue src",
@@ -41,7 +41,8 @@
     "vue-splitpane": "1.0.4",
     "vuedraggable": "2.20.0",
     "vuex": "3.1.0",
-    "xlsx": "0.14.1"
+    "xlsx": "0.14.1",
+    "less-api-client": "^0.7.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "4.4.4",
@@ -86,11 +87,11 @@
   "keywords": [
     "vue",
     "admin",
-    "dashboard",
+    "less-framework",
     "element-ui",
     "boilerplate",
     "admin-template",
-    "management-system"
+    "less-api"
   ],
   "license": "MIT",
   "lint-staged": {
@@ -106,6 +107,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PanJiaChen/vue-element-admin.git"
+    "url": "git+https://github.com/Maslow/less-admin.git"
   }
 }
