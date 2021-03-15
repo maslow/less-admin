@@ -36,7 +36,7 @@ module.exports = {
       warnings: false,
       errors: true
     },
-    // before: require('./mock/mock-server.js')
+    // before: require('./mock/mock-server.js'),
     proxy: {
       // detail: https://cli.vuejs.org/config/#devserver-proxy
       [process.env.VUE_APP_BASE_API]: {
@@ -46,7 +46,7 @@ module.exports = {
           ['^' + process.env.VUE_APP_BASE_API]: ''
         }
       }
-    },
+    }
   },
   configureWebpack: {
     // provide the app's title in webpack's name field, so that

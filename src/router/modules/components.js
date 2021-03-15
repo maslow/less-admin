@@ -8,10 +8,16 @@ const componentsRouter = {
   redirect: 'noRedirect',
   name: 'ComponentDemo',
   meta: {
-    title: 'Components',
+    title: '组件示例',
     icon: 'component'
   },
   children: [
+    {
+      path: 'icon',
+      component: () => import('@/views/icons/index'),
+      name: 'Icons',
+      meta: { title: '图标', icon: 'icon' }
+    },
     {
       path: 'tinymce',
       component: () => import('@/views/components-demo/tinymce'),
@@ -49,12 +55,6 @@ const componentsRouter = {
       meta: { title: 'Dropzone' }
     },
     {
-      path: 'sticky',
-      component: () => import('@/views/components-demo/sticky'),
-      name: 'StickyDemo',
-      meta: { title: 'Sticky' }
-    },
-    {
       path: 'count-to',
       component: () => import('@/views/components-demo/count-to'),
       name: 'CountToDemo',
@@ -65,12 +65,6 @@ const componentsRouter = {
       component: () => import('@/views/components-demo/mixin'),
       name: 'ComponentMixinDemo',
       meta: { title: 'Component Mixin' }
-    },
-    {
-      path: 'back-to-top',
-      component: () => import('@/views/components-demo/back-to-top'),
-      name: 'BackToTopDemo',
-      meta: { title: 'Back To Top' }
     },
     {
       path: 'drag-dialog',

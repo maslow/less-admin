@@ -8,7 +8,7 @@ const tableRouter = {
   redirect: '/table/complex-table',
   name: 'Table',
   meta: {
-    title: 'Table',
+    title: '表格示例',
     icon: 'table'
   },
   children: [
