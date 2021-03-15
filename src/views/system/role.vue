@@ -8,7 +8,7 @@
           {{ scope.row.id }}
         </template>
       </el-table-column>
-      <el-table-column align="center" label="标识" width="220">
+      <el-table-column align="center" label="角色标识" width="220">
         <template slot-scope="scope">
           {{ scope.row.name }}
         </template>
@@ -25,8 +25,16 @@
       </el-table-column>
       <el-table-column align="center" label="Operations">
         <template slot-scope="scope">
-          <el-button type="primary" size="small" @click="handleEdit(scope)">Edit</el-button>
-          <el-button type="danger" size="small" @click="handleDelete(scope)">Delete</el-button>
+          <el-button
+            type="primary"
+            size="small"
+            @click="handleEdit(scope)"
+          >Edit</el-button>
+          <el-button
+            type="danger"
+            size="small"
+            @click="handleDelete(scope)"
+          >Delete</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -80,12 +88,7 @@ export default {
       role: Object.assign({}, defaultForm),
       rolesList: [],
       dialogVisible: false,
-      dialogType: 'new',
-      checkStrictly: false,
-      defaultProps: {
-        children: 'children',
-        label: 'title'
-      }
+      dialogType: 'new'
     }
   },
   created() {
@@ -93,7 +96,9 @@ export default {
   },
   methods: {
     async getRoles() {
-      const res = await db.collection('role').get()
+      const res = await db
+        .collection('role')
+        .get()
       this.rolesList = res.data
     },
     handleAddRole() {
@@ -107,7 +112,6 @@ export default {
     handleEdit(scope) {
       this.dialogType = 'edit'
       this.dialogVisible = true
-      this.checkStrictly = true
       this.role = deepClone(scope.row)
     },
     handleDelete({ $index, row }) {
