@@ -76,7 +76,7 @@ import { deepClone } from '@/utils'
 import { db } from '@/api/cloud'
 
 const defaultForm = {
-  id: '',
+  id: undefined,
   name: '',
   label: '',
   description: ''
@@ -96,9 +96,7 @@ export default {
   },
   methods: {
     async getRoles() {
-      const res = await db
-        .collection('role')
-        .get()
+      const res = await db.collection('role').get()
       this.rolesList = res.data
     },
     handleAddRole() {

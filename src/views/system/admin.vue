@@ -63,7 +63,7 @@ import { deepClone } from '@/utils'
 import { db } from '@/api/cloud'
 
 const defaultForm = {
-  uid: '',
+  uid: undefined,
   username: '',
   name: ''
 }
