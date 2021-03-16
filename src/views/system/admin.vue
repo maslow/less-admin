@@ -42,6 +42,13 @@
         <el-form-item label="管理员标识">
           <el-input v-model="admin.username" placeholder="用户名" />
         </el-form-item>
+        <el-form-item label="管理员密码">
+          <el-input
+            v-model="admin.password"
+            type="password"
+            :placeholder="dialogType === 'edit' ? '不修改则留空' : '管理员密码'"
+          />
+        </el-form-item>
         <el-form-item label="管理员名称">
           <el-input v-model="admin.name" placeholder="管理员名称" />
         </el-form-item>
@@ -52,7 +59,7 @@
           @click="dialogVisible = false"
         >取消
         </el-button>
-        <el-button type="primary" @click="confirmRole">确认</el-button>
+        <el-button type="primary" @click="confirmForm">确认</el-button>
       </div>
     </el-dialog>
   </div>
@@ -61,11 +68,13 @@
 <script>
 import { deepClone } from '@/utils'
 import { db } from '@/api/cloud'
+import * as user from '@/api/user'
 
 const defaultForm = {
   uid: undefined,
   username: '',
-  name: ''
+  name: '',
+  password: ''
 }
 
 export default {
@@ -96,6 +105,7 @@ export default {
       this.dialogVisible = true
       this.checkStrictly = true
       this.admin = deepClone(scope.row)
+      this.admin.password = ''
     },
     handleDelete({ $index, row }) {
       this.$confirm('Confirm to remove the admin?', 'Warning', {
@@ -122,20 +132,27 @@ export default {
           console.error(err)
         })
     },
-    async confirmRole() {
+    async confirmForm() {
       const isEdit = this.dialogType === 'edit'
 
       if (isEdit) {
-        await db
-          .collection('admin')
-          .where({ uid: this.admin.uid })
-          .update({
-            name: this.admin.name,
-            username: this.admin.username
-          })
+        const data = {
+          uid: this.admin.uid
+        }
+        if (this.admin.username) {
+          data['username'] = this.admin.username
+        }
+        if (this.admin.name) {
+          data['name'] = this.admin.name
+        }
+        if (this.admin.password) {
+          data['password'] = this.admin.password
+        }
+
+        await user.edit(data)
         this.getAdmins()
       } else {
-        await db.collection('admin').add(this.admin)
+        await user.add(this.admin)
         this.getAdmins()
       }
 
