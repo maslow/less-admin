@@ -1,35 +1,46 @@
 <template>
   <div class="app-container">
-    <el-button type="primary" @click="handleAddRole">新建管理员</el-button>
-
-    <el-table :data="rolesList" style="width: 100%;margin-top:30px;" border>
+    <el-button type="primary" @click="handleAddForm">新建管理员</el-button>
+    <el-table :data="admins" style="width: 100%;margin-top:30px;" border>
       <el-table-column align="center" label="ID" width="220">
         <template slot-scope="scope">
           {{ scope.row.uid }}
         </template>
       </el-table-column>
-      <el-table-column align="center" label="用户名" width="220">
+      <el-table-column align="center" label="用户名">
         <template slot-scope="scope">
           {{ scope.row.username }}
         </template>
       </el-table-column>
-      <el-table-column align="center" label="显示名称" width="220">
+      <el-table-column align="center" label="显示名称">
         <template slot-scope="scope">
           {{ scope.row.name }}
         </template>
       </el-table-column>
-      <el-table-column align="center" label="Operations">
+      <el-table-column align="center" label="角色">
+        <template slot-scope="{ row }">
+          <el-tag
+            v-for="role in row.roles"
+            :key="role.id"
+            closable
+            @close="removeRole(row, role)"
+          >
+            {{ role.label }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="操作">
         <template slot-scope="scope">
           <el-button
             type="primary"
             size="small"
             @click="handleEdit(scope)"
-          >Edit</el-button>
+          >编辑</el-button>
           <el-button
             type="danger"
             size="small"
             @click="handleDelete(scope)"
-          >Delete</el-button>
+          >删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -69,6 +80,7 @@
 import { deepClone } from '@/utils'
 import { db } from '@/api/cloud'
 import * as user from '@/api/user'
+const _ = db.command
 
 const defaultForm = {
   uid: undefined,
@@ -81,32 +93,64 @@ export default {
   data() {
     return {
       admin: Object.assign({}, defaultForm),
-      rolesList: [],
+      admins: [],
       dialogVisible: false,
       dialogType: 'new',
-      checkStrictly: false
+      roles: [] // 所有的角色列表
     }
   },
-  created() {
+  async created() {
+    this.getRoles()
     this.getAdmins()
   },
   methods: {
+    /** 获取管理员列表 */
     async getAdmins() {
       const res = await db.collection('admin').get()
-      this.rolesList = res.data
+      this.admins = res.data.map(it => Object({ ...it, roles: [] }))
+      await this.getAdminRoles()
     },
-    handleAddRole() {
+    /** 获取所有的角色列表 */
+    async getRoles() {
+      const res = await db.collection('role').get()
+      this.roles = res.data || []
+    },
+    /** 获取当前列表每个管理员的角色列表 */
+    async getAdminRoles() {
+      const roleIds = this.admins.map(r => r.uid)
+      const res = await db
+        .collection('user_role')
+        .leftJoin('role', 'id', 'role_id')
+        .where({ uid: _.in(roleIds) })
+        .get({ nested: true })
+
+      // 构建<用户->角色>的映射表
+      const roles_map = {}
+      for (const r of res.data) {
+        const uid = r.user_role.uid
+        const vals = roles_map[uid] || []
+        vals.push(r.role)
+        roles_map[uid] = vals
+      }
+
+      for (const adm of this.admins) {
+        adm['roles'] = roles_map[adm.uid]
+      }
+    },
+    /** 打开添加表单  */
+    handleAddForm() {
       this.admin = Object.assign({}, defaultForm)
       this.dialogType = 'new'
       this.dialogVisible = true
     },
+    /** 打开编辑表单 */
     handleEdit(scope) {
       this.dialogType = 'edit'
       this.dialogVisible = true
-      this.checkStrictly = true
       this.admin = deepClone(scope.row)
       this.admin.password = ''
     },
+    /** 删除数据 */
     handleDelete({ $index, row }) {
       this.$confirm('Confirm to remove the admin?', 'Warning', {
         confirmButtonText: 'Confirm',
@@ -122,7 +166,7 @@ export default {
             .where({ uid: row.uid })
             .remove()
 
-          this.rolesList.splice($index, 1)
+          this.admins.splice($index, 1)
           this.$message({
             type: 'success',
             message: 'Delete succed!'
@@ -132,6 +176,8 @@ export default {
           console.error(err)
         })
     },
+
+    /** 编辑或新建 */
     async confirmForm() {
       const isEdit = this.dialogType === 'edit'
 
@@ -152,7 +198,12 @@ export default {
         await user.edit(data)
         this.getAdmins()
       } else {
-        await user.add(this.admin)
+        const data = {
+          username: this.admin.username,
+          name: this.admin.name,
+          password: this.admin.password
+        }
+        await user.add(data)
         this.getAdmins()
       }
 
@@ -167,6 +218,11 @@ export default {
           `,
         type: 'success'
       })
+    },
+
+    /** 删除管理员的一个角色 */
+    async removeRole(admin, role) {
+      // TODO
     }
   }
 }
