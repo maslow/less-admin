@@ -45,6 +45,7 @@
       </el-table-column>
     </el-table>
 
+    <!-- 表单对话框 -->
     <el-dialog
       :visible.sync="dialogVisible"
       :title="dialogType === 'edit' ? '编辑管理员' : '新建管理员'"
@@ -80,7 +81,6 @@
 import { deepClone } from '@/utils'
 import { db } from '@/api/cloud'
 import * as user from '@/api/user'
-const _ = db.command
 
 const defaultForm = {
   uid: undefined,
@@ -106,36 +106,21 @@ export default {
   methods: {
     /** 获取管理员列表 */
     async getAdmins() {
-      const res = await db.collection('admin').get()
-      this.admins = res.data.map(it => Object({ ...it, roles: [] }))
-      await this.getAdminRoles()
+      const res = await db.collection('admin')
+        .with({
+          query: db.collection('user_role').leftJoin('role', 'id', 'role_id'),
+          to: 'uid',
+          from: 'uid',
+          as: 'roles'
+        })
+        .merge()
+
+      this.admins = res.data
     },
     /** 获取所有的角色列表 */
     async getRoles() {
       const res = await db.collection('role').get()
       this.roles = res.data || []
-    },
-    /** 获取当前列表每个管理员的角色列表 */
-    async getAdminRoles() {
-      const roleIds = this.admins.map(r => r.uid)
-      const res = await db
-        .collection('user_role')
-        .leftJoin('role', 'id', 'role_id')
-        .where({ uid: _.in(roleIds) })
-        .get({ nested: true })
-
-      // 构建<用户->角色>的映射表
-      const roles_map = {}
-      for (const r of res.data) {
-        const uid = r.user_role.uid
-        const vals = roles_map[uid] || []
-        vals.push(r.role)
-        roles_map[uid] = vals
-      }
-
-      for (const adm of this.admins) {
-        adm['roles'] = roles_map[adm.uid]
-      }
     },
     /** 打开添加表单  */
     handleAddForm() {
