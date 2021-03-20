@@ -5,7 +5,7 @@
     <el-table :data="rolesList" style="width: 100%;margin-top:30px;" border>
       <el-table-column align="center" label="ID" width="220">
         <template slot-scope="scope">
-          {{ scope.row.id }}
+          {{ scope.row._id }}
         </template>
       </el-table-column>
       <el-table-column align="center" label="角色标识" width="220">
@@ -23,6 +23,19 @@
           {{ scope.row.description }}
         </template>
       </el-table-column>
+      <el-table-column align="center" label="权限">
+        <template slot-scope="{ row }">
+          <el-tag
+            v-for="perm in row.permissions"
+            :key="perm._id"
+            style="margin: 3px 6px"
+            closable
+          >
+            {{ perm.label }}
+          </el-tag>
+        </template>
+      </el-table-column>
+
       <el-table-column align="center" label="Operations">
         <template slot-scope="scope">
           <el-button
@@ -74,9 +87,10 @@
 <script>
 import { deepClone } from '@/utils'
 import { db } from '@/api/cloud'
+import { applyMap2arrayInArray, array2map } from '@/utils/array'
 
 const defaultForm = {
-  id: undefined,
+  _id: undefined,
   name: '',
   label: '',
   description: ''
@@ -96,8 +110,10 @@ export default {
   },
   methods: {
     async getRoles() {
-      const res = await db.collection('role').get()
-      this.rolesList = res.data
+      const res = await db.collection('roles').get()
+      const { data: permissions } = await db.collection('permissions').get()
+      const permsMap = array2map(permissions, 'name')
+      this.rolesList = applyMap2arrayInArray(permsMap, res.data, 'permissions')
     },
     handleAddRole() {
       this.role = Object.assign({}, defaultForm)
@@ -123,8 +139,8 @@ export default {
             return
           }
           await db
-            .collection('role')
-            .where({ id: row.id })
+            .collection('roles')
+            .where({ _id: row._id })
             .remove()
 
           this.rolesList.splice($index, 1)
@@ -142,8 +158,8 @@ export default {
 
       if (isEdit) {
         await db
-          .collection('role')
-          .where({ id: this.role.id })
+          .collection('roles')
+          .where({ _id: this.role._id })
           .update({
             name: this.role.name,
             label: this.role.label,
@@ -151,7 +167,7 @@ export default {
           })
         this.getRoles()
       } else {
-        await db.collection('role').add(this.role)
+        await db.collection('roles').add(this.role)
         this.getRoles()
       }
 

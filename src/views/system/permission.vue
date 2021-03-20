@@ -5,7 +5,7 @@
     <el-table :data="rolesList" style="width: 100%;margin-top:30px;" border>
       <el-table-column align="center" label="ID" width="220">
         <template slot-scope="scope">
-          {{ scope.row.id }}
+          {{ scope.row._id }}
         </template>
       </el-table-column>
       <el-table-column align="center" label="标识" width="220">
@@ -76,7 +76,7 @@ import { deepClone } from '@/utils'
 import { db } from '@/api/cloud'
 
 const defaultForm = {
-  id: undefined,
+  _id: undefined,
   name: '',
   label: '',
   description: ''
@@ -101,7 +101,7 @@ export default {
   },
   methods: {
     async getPermissions() {
-      const res = await db.collection('permission').get()
+      const res = await db.collection('permissions').get()
       this.rolesList = res.data
     },
     handleAddRole() {
@@ -126,8 +126,8 @@ export default {
       })
         .then(async() => {
           await db
-            .collection('permission')
-            .where({ id: row.id })
+            .collection('permissions')
+            .where({ _id: row._id })
             .remove()
 
           this.rolesList.splice($index, 1)
@@ -145,8 +145,8 @@ export default {
 
       if (isEdit) {
         await db
-          .collection('permission')
-          .where({ id: this.permission.id })
+          .collection('permissions')
+          .where({ _id: this.permission._id })
           .update({
             name: this.permission.name,
             label: this.permission.label,

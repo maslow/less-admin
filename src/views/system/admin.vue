@@ -81,6 +81,7 @@
 import { deepClone } from '@/utils'
 import { db } from '@/api/cloud'
 import * as user from '@/api/user'
+import { array2map, applyMap2arrayInArray } from '../../utils/array'
 
 const defaultForm = {
   uid: undefined,
@@ -100,26 +101,21 @@ export default {
     }
   },
   async created() {
-    this.getRoles()
-    this.getAdmins()
+    await this.getRoles()
+    await this.getAdmins()
   },
   methods: {
     /** 获取管理员列表 */
     async getAdmins() {
-      const res = await db.collection('admin')
-        .with({
-          query: db.collection('user_role').leftJoin('role', 'id', 'role_id'),
-          to: 'uid',
-          from: 'uid',
-          as: 'roles'
-        })
-        .merge()
+      const res = await db.collection('admins')
+        .get()
 
-      this.admins = res.data
+      const rolesMap = array2map(this.roles, 'name')
+      this.admins = applyMap2arrayInArray(rolesMap, res.data, 'roles')
     },
     /** 获取所有的角色列表 */
     async getRoles() {
-      const res = await db.collection('role').get()
+      const res = await db.collection('roles').get()
       this.roles = res.data || []
     },
     /** 打开添加表单  */
@@ -147,7 +143,7 @@ export default {
             return
           }
           await db
-            .collection('admin')
+            .collection('admins')
             .where({ uid: row.uid })
             .remove()
 
