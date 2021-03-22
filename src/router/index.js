@@ -104,9 +104,9 @@ export const constantRoutes = [
  */
 export const asyncRoutes = [
   {
-    path: '/settings',
+    path: '/system',
     component: Layout,
-    redirect: '/settings/role',
+    redirect: '/system/role',
     meta: {
       title: '系统管理', icon: 'tree-table', noCache: true
     },
@@ -114,20 +114,35 @@ export const asyncRoutes = [
       {
         path: 'role',
         component: () => import('@/views/system/role'),
-        name: 'Icons',
-        meta: { title: '角色管理', icon: 'user', noCache: true }
+        name: 'RoleManagement',
+        meta: {
+          title: '角色管理',
+          icon: 'user',
+          noCache: true,
+          permissions: ['role.edit', 'role.create']
+        }
       },
       {
         path: 'permission',
         component: () => import('@/views/system/permission'),
-        name: 'Icons',
-        meta: { title: '权限管理', icon: 'password', noCache: true }
+        name: 'PermissionManagement',
+        meta: {
+          title: '权限管理',
+          icon: 'password',
+          noCache: true,
+          permissions: ['permission.edit', 'permission.create']
+        }
       },
       {
         path: 'admin',
         component: () => import('@/views/system/admin'),
-        name: 'Icons',
-        meta: { title: '管理员管理', icon: 'people', noCache: true }
+        name: 'AdminManagement',
+        meta: {
+          title: '管理员管理',
+          icon: 'people',
+          noCache: true,
+          permissions: ['admin.read']
+        }
       }
     ]
   },

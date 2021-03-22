@@ -35,7 +35,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="Operations">
+      <el-table-column align="center" label="操作">
         <template slot-scope="scope">
           <el-button
             v-permission="'role.edit'"
@@ -65,7 +65,7 @@
           <el-input v-model="role.label" placeholder="角色显示名称" />
         </el-form-item>
         <el-form-item label="角色权限">
-          <el-select v-model="role.permissions" multiple placeholder="请选择角色">
+          <el-select v-model="role.permissions" multiple placeholder="请选择角色" collapse-tags filterable>
             <el-option
               v-for="item in permissions"
               :key="item.name"
