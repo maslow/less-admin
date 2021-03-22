@@ -73,7 +73,7 @@ service.interceptors.response.use(
   },
   error => {
     Message({
-      message: '您没有该操作权限',
+      message: error.message,
       type: 'info',
       duration: 5 * 1000
     })

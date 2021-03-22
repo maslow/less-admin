@@ -143,6 +143,17 @@ export const asyncRoutes = [
           noCache: true,
           permissions: ['admin.read']
         }
+      },
+      {
+        path: 'rules',
+        component: () => import('@/views/system/rules'),
+        name: 'AdminManagement',
+        meta: {
+          title: '访问规则管理',
+          icon: 'lock',
+          noCache: true,
+          permissions: ['rule.read', 'rule.edit', 'rule.delete']
+        }
       }
     ]
   },

@@ -47,3 +47,13 @@ export function edit(data) {
   })
 }
 
+/**
+ * 应用访问规则
+ */
+export function applyRules(data) {
+  return request({
+    url: '/admin/apply/rules',
+    method: 'post',
+    data
+  })
+}
