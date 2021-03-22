@@ -25,18 +25,6 @@ const componentsRouter = {
       meta: { title: 'Tinymce' }
     },
     {
-      path: 'markdown',
-      component: () => import('@/views/components-demo/markdown'),
-      name: 'MarkdownDemo',
-      meta: { title: 'Markdown' }
-    },
-    {
-      path: 'json-editor',
-      component: () => import('@/views/components-demo/json-editor'),
-      name: 'JsonEditorDemo',
-      meta: { title: 'JSON Editor' }
-    },
-    {
       path: 'split-pane',
       component: () => import('@/views/components-demo/split-pane'),
       name: 'SplitpaneDemo',
@@ -55,12 +43,6 @@ const componentsRouter = {
       meta: { title: 'Dropzone' }
     },
     {
-      path: 'count-to',
-      component: () => import('@/views/components-demo/count-to'),
-      name: 'CountToDemo',
-      meta: { title: 'Count To' }
-    },
-    {
       path: 'mixin',
       component: () => import('@/views/components-demo/mixin'),
       name: 'ComponentMixinDemo',
@@ -77,12 +59,6 @@ const componentsRouter = {
       component: () => import('@/views/components-demo/drag-select'),
       name: 'DragSelectDemo',
       meta: { title: 'Drag Select' }
-    },
-    {
-      path: 'dnd-list',
-      component: () => import('@/views/components-demo/dnd-list'),
-      name: 'DndListDemo',
-      meta: { title: 'Dnd List' }
     },
     {
       path: 'drag-kanban',

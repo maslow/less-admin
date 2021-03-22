@@ -3,13 +3,9 @@ import Router from 'vue-router'
 
 Vue.use(Router)
 
-/* Layout */
-import Layout from '@/layout'
-
-/* Router Modules */
-import componentsRouter from './modules/components'
-import chartsRouter from './modules/charts'
-import tableRouter from './modules/table'
+export { asyncRoutes } from './async'
+export { constantRoutes } from './constants'
+import { constantRoutes } from './constants'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -31,149 +27,6 @@ import tableRouter from './modules/table'
     activeMenu: '/example/list'  if set path, the sidebar will highlight the path you set
   }
  */
-
-/**
- * constantRoutes
- * a base page that does not have permission requirements
- * all roles can be accessed
- */
-export const constantRoutes = [
-  {
-    path: '/redirect',
-    component: Layout,
-    hidden: true,
-    children: [
-      {
-        path: '/redirect/:path(.*)',
-        component: () => import('@/views/redirect/index')
-      }
-    ]
-  },
-  {
-    path: '/login',
-    component: () => import('@/views/login/index'),
-    hidden: true
-  },
-  {
-    path: '/auth-redirect',
-    component: () => import('@/views/login/auth-redirect'),
-    hidden: true
-  },
-  {
-    path: '/404',
-    component: () => import('@/views/error-page/404'),
-    hidden: true
-  },
-  {
-    path: '/401',
-    component: () => import('@/views/error-page/401'),
-    hidden: true
-  },
-  {
-    path: '/',
-    component: Layout,
-    redirect: '/dashboard',
-    children: [
-      {
-        path: 'dashboard',
-        component: () => import('@/views/dashboard/index'),
-        name: 'Dashboard',
-        meta: { title: '数据看板', icon: 'dashboard', affix: true }
-      }
-    ]
-  },
-  {
-    path: '/profile',
-    component: Layout,
-    redirect: '/profile/index',
-    hidden: true,
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/profile/index'),
-        name: 'Profile',
-        meta: { title: 'Profile', icon: 'user', noCache: true }
-      }
-    ]
-  }
-]
-
-/**
- * asyncRoutes
- * the routes that need to be dynamically loaded based on user roles
- */
-export const asyncRoutes = [
-  {
-    path: '/system',
-    component: Layout,
-    redirect: '/system/role',
-    meta: {
-      title: '系统管理', icon: 'tree-table', noCache: true
-    },
-    children: [
-      {
-        path: 'role',
-        component: () => import('@/views/system/role'),
-        name: 'RoleManagement',
-        meta: {
-          title: '角色管理',
-          icon: 'user',
-          noCache: true,
-          permissions: ['role.edit', 'role.create']
-        }
-      },
-      {
-        path: 'permission',
-        component: () => import('@/views/system/permission'),
-        name: 'PermissionManagement',
-        meta: {
-          title: '权限管理',
-          icon: 'password',
-          noCache: true,
-          permissions: ['permission.edit', 'permission.create']
-        }
-      },
-      {
-        path: 'admin',
-        component: () => import('@/views/system/admin'),
-        name: 'AdminManagement',
-        meta: {
-          title: '管理员管理',
-          icon: 'people',
-          noCache: true,
-          permissions: ['admin.read']
-        }
-      },
-      {
-        path: 'rules',
-        component: () => import('@/views/system/rules'),
-        name: 'AdminManagement',
-        meta: {
-          title: '访问规则管理',
-          icon: 'lock',
-          noCache: true,
-          permissions: ['rule.read', 'rule.edit', 'rule.delete']
-        }
-      }
-    ]
-  },
-  componentsRouter,
-  chartsRouter,
-  tableRouter,
-  {
-    path: 'external-link',
-    component: Layout,
-    children: [
-      {
-        path: 'https://www.zhuo-zhuo.com',
-        meta: { title: '灼灼信息', icon: 'link' }
-      }
-    ]
-  },
-
-  // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }
-]
 
 const createRouter = () => new Router({
   // mode: 'history', // require service support
