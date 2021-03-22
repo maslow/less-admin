@@ -7,7 +7,8 @@ const state = {
   name: '',
   avatar: '',
   introduction: '',
-  roles: []
+  roles: [],
+  permissions: []
 }
 
 const mutations = {
@@ -24,7 +25,10 @@ const mutations = {
     state.avatar = avatar
   },
   SET_ROLES: (state, roles) => {
-    state.roles = roles
+    state.roles = roles || []
+  },
+  SET_PERMISSIONS: (state, permissions) => {
+    state.permissions = permissions || []
   }
 }
 
@@ -35,7 +39,6 @@ const actions = {
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
         const { data } = response
-        console.log(data)
         commit('SET_TOKEN', data.access_token)
         setToken(data.access_token, data.expire)
         resolve()
@@ -57,15 +60,19 @@ const actions = {
 
         const admin = data
         const roles = admin.roles
+        const permissions = admin.permissions
+
         // roles must be a non-empty array
         if (!roles || roles.length <= 0) {
           reject('getInfo: roles must be a non-null array!')
         }
 
         commit('SET_ROLES', roles)
+        commit('SET_PERMISSIONS', permissions)
         commit('SET_NAME', admin.name)
         commit('SET_AVATAR', admin.avatar)
-        commit('SET_INTRODUCTION', admin.introduction)
+        commit('SET_INTRODUCTION', admin.description)
+
         resolve(data)
       }).catch(error => {
         reject(error)
@@ -78,6 +85,8 @@ const actions = {
     return new Promise((resolve, reject) => {
       commit('SET_TOKEN', '')
       commit('SET_ROLES', [])
+      commit('SET_PERMISSIONS', [])
+
       removeToken()
       resetRouter()
 

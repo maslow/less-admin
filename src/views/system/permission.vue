@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-button type="primary" @click="handleAddRole">新建权限</el-button>
+    <el-button v-permission="'permission.create'" type="primary" @click="handleAddRole">创建权限</el-button>
 
     <el-table :data="rolesList" style="width: 100%;margin-top:30px;" border>
       <el-table-column align="center" label="ID" width="220">
@@ -8,12 +8,12 @@
           {{ scope.row._id }}
         </template>
       </el-table-column>
-      <el-table-column align="center" label="标识" width="220">
+      <el-table-column align="center" label="标识" width="300">
         <template slot-scope="scope">
           {{ scope.row.name }}
         </template>
       </el-table-column>
-      <el-table-column align="center" label="显示名称" width="220">
+      <el-table-column align="center" label="显示名称" width="300">
         <template slot-scope="scope">
           {{ scope.row.label }}
         </template>
@@ -26,22 +26,24 @@
       <el-table-column align="center" label="Operations">
         <template slot-scope="scope">
           <el-button
+            v-permission="'permission.edit'"
             type="primary"
             size="small"
             @click="handleEdit(scope)"
-          >Edit</el-button>
+          >修改</el-button>
           <el-button
+            v-permission="'permission.delete'"
             type="danger"
             size="small"
             @click="handleDelete(scope)"
-          >Delete</el-button>
+          >删除</el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <el-dialog
       :visible.sync="dialogVisible"
-      :title="dialogType === 'edit' ? '编辑权限' : '新建权限'"
+      :title="dialogType === 'edit' ? '修改权限' : '创建权限'"
     >
       <el-form :model="permission" label-width="80px" label-position="left">
         <el-form-item label="权限标识">
@@ -61,9 +63,10 @@
       </el-form>
       <div style="text-align:right;">
         <el-button
-          type="danger"
+          type="info"
           @click="dialogVisible = false"
-        >取消
+        >
+          取消
         </el-button>
         <el-button type="primary" @click="confirmRole">确认</el-button>
       </div>
@@ -119,21 +122,22 @@ export default {
       this.permission = deepClone(scope.row)
     },
     handleDelete({ $index, row }) {
-      this.$confirm('Confirm to remove the permission?', 'Warning', {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
+      this.$confirm('确定删除此权限?', 'Warning', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
         type: 'warning'
       })
         .then(async() => {
-          await db
+          const r = await db
             .collection('permissions')
             .where({ _id: row._id })
             .remove()
 
+          if (!r.ok) return
           this.rolesList.splice($index, 1)
           this.$message({
             type: 'success',
-            message: 'Delete succed!'
+            message: '删除成功!'
           })
         })
         .catch(err => {
@@ -144,7 +148,7 @@ export default {
       const isEdit = this.dialogType === 'edit'
 
       if (isEdit) {
-        await db
+        const r = await db
           .collection('permissions')
           .where({ _id: this.permission._id })
           .update({
@@ -152,9 +156,11 @@ export default {
             label: this.permission.label,
             description: this.permission.description
           })
+        if (!r.ok) return
         this.getPermissions()
       } else {
-        await db.collection('permission').add(this.permission)
+        const r = await db.collection('permission').add(this.permission)
+        if (!r.ok) return
         this.getPermissions()
       }
 

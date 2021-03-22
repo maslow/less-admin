@@ -1,15 +1,19 @@
 import store from '@/store'
 
 function checkPermission(el, binding) {
-  const { value } = binding
-  const roles = store.getters && store.getters.roles
+  let { value } = binding
+  const permissions = store.getters && store.getters.permissions
 
-  if (value && value instanceof Array) {
+  if (typeof value === 'string') {
+    value = [value]
+  }
+
+  if (value instanceof Array) {
     if (value.length > 0) {
-      const permissionRoles = value
+      const needPermissions = value
 
-      const hasPermission = roles.some(role => {
-        return permissionRoles.includes(role)
+      const hasPermission = permissions.some(perm => {
+        return needPermissions.includes(perm)
       })
 
       if (!hasPermission) {
@@ -17,7 +21,7 @@ function checkPermission(el, binding) {
       }
     }
   } else {
-    throw new Error(`need roles! Like v-permission="['admin','editor']"`)
+    throw new Error(`need permissions! Like v-permission="['admin.create','admin.edit'] or v-permission="admin.edit"`)
   }
 }
 

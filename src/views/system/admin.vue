@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-button type="primary" @click="handleAddForm">新建管理员</el-button>
+    <el-button v-permission="'admin.create'" type="primary" @click="handleAddForm">创建管理员</el-button>
     <el-table :data="admins" style="width: 100%;margin-top:30px;" border>
       <el-table-column align="center" label="ID" width="220">
         <template slot-scope="scope">
@@ -20,10 +20,9 @@
       <el-table-column align="center" label="角色">
         <template slot-scope="{ row }">
           <el-tag
-            v-for="role in row.roles"
+            v-for="role in row.full_roles"
             :key="role.id"
-            closable
-            @close="removeRole(row, role)"
+            style="margin: 3px 5px"
           >
             {{ role.label }}
           </el-tag>
@@ -32,11 +31,13 @@
       <el-table-column align="center" label="操作">
         <template slot-scope="scope">
           <el-button
+            v-permission="'admin.edit'"
             type="primary"
             size="small"
             @click="handleEdit(scope)"
-          >编辑</el-button>
+          >修改</el-button>
           <el-button
+            v-permission="'admin.delete'"
             type="danger"
             size="small"
             @click="handleDelete(scope)"
@@ -48,7 +49,7 @@
     <!-- 表单对话框 -->
     <el-dialog
       :visible.sync="dialogVisible"
-      :title="dialogType === 'edit' ? '编辑管理员' : '新建管理员'"
+      :title="dialogType === 'edit' ? '修改管理员' : '创建管理员'"
     >
       <el-form :model="admin" label-width="100px" label-position="left">
         <el-form-item label="管理员标识">
@@ -64,10 +65,20 @@
         <el-form-item label="管理员名称">
           <el-input v-model="admin.name" placeholder="管理员名称" />
         </el-form-item>
+        <el-form-item label="角色">
+          <el-select v-model="admin.roles" multiple placeholder="请选择角色">
+            <el-option
+              v-for="item in roles"
+              :key="item.name"
+              :label="item.label"
+              :value="item.name"
+            />
+          </el-select>
+        </el-form-item>
       </el-form>
       <div style="text-align:right;">
         <el-button
-          type="danger"
+          type="info"
           @click="dialogVisible = false"
         >取消
         </el-button>
@@ -81,16 +92,18 @@
 import { deepClone } from '@/utils'
 import { db } from '@/api/cloud'
 import * as user from '@/api/user'
-import { array2map, applyMap2arrayInArray } from '../../utils/array'
+import { array2map, mergeMap2ArrayByKeyArray } from '../../utils/array'
 
 const defaultForm = {
   uid: undefined,
   username: '',
   name: '',
-  password: ''
+  password: '',
+  roles: []
 }
 
 export default {
+
   data() {
     return {
       admin: Object.assign({}, defaultForm),
@@ -99,6 +112,9 @@ export default {
       dialogType: 'new',
       roles: [] // 所有的角色列表
     }
+  },
+  computed: {
+
   },
   async created() {
     await this.getRoles()
@@ -111,7 +127,7 @@ export default {
         .get()
 
       const rolesMap = array2map(this.roles, 'name')
-      this.admins = applyMap2arrayInArray(rolesMap, res.data, 'roles')
+      this.admins = mergeMap2ArrayByKeyArray(rolesMap, res.data, 'roles', 'full_roles')
     },
     /** 获取所有的角色列表 */
     async getRoles() {
@@ -128,25 +144,22 @@ export default {
     handleEdit(scope) {
       this.dialogType = 'edit'
       this.dialogVisible = true
-      this.admin = deepClone(scope.row)
-      this.admin.password = ''
+      this.admin = { ...deepClone(scope.row), password: '' }
+      // this.admin.password = ''
     },
     /** 删除数据 */
     handleDelete({ $index, row }) {
-      this.$confirm('Confirm to remove the admin?', 'Warning', {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
+      this.$confirm('确定删除?', 'Warning', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
         type: 'warning'
       })
         .then(async() => {
-          if (row.uid === 1) {
-            return
-          }
-          await db
+          const { ok } = await db
             .collection('admins')
             .where({ uid: row.uid })
             .remove()
-
+          if (!ok) return
           this.admins.splice($index, 1)
           this.$message({
             type: 'success',
@@ -154,7 +167,7 @@ export default {
           })
         })
         .catch(err => {
-          console.error(err)
+          console.log(err)
         })
     },
 
@@ -164,15 +177,12 @@ export default {
 
       if (isEdit) {
         const data = {
-          uid: this.admin.uid
+          uid: this.admin.uid,
+          username: this.admin.username,
+          name: this.admin.name,
+          roles: this.admin.roles
         }
-        if (this.admin.username) {
-          data['username'] = this.admin.username
-        }
-        if (this.admin.name) {
-          data['name'] = this.admin.name
-        }
-        if (this.admin.password) {
+        if (this.admin.password !== '') {
           data['password'] = this.admin.password
         }
 
@@ -182,7 +192,8 @@ export default {
         const data = {
           username: this.admin.username,
           name: this.admin.name,
-          password: this.admin.password
+          password: this.admin.password,
+          roles: this.admin.roles
         }
         await user.add(data)
         this.getAdmins()
@@ -199,11 +210,6 @@ export default {
           `,
         type: 'success'
       })
-    },
-
-    /** 删除管理员的一个角色 */
-    async removeRole(admin, role) {
-      // TODO
     }
   }
 }
