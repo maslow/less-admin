@@ -9,46 +9,47 @@ import CodeMirror from 'codemirror'
 import 'codemirror/addon/lint/lint.css'
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/theme/rubyblue.css'
-require('script-loader!jsonlint')
+// require('script-loader!jsonlint')
 import 'codemirror/mode/javascript/javascript'
 import 'codemirror/addon/lint/lint'
 import 'codemirror/addon/lint/json-lint'
 
 export default {
-  name: 'JsonEditor',
+  name: 'JsEditor',
   /* eslint-disable vue/require-prop-types */
   props: ['value'],
   data() {
     return {
-      jsonEditor: false
+      jsEditor: false
     }
   },
   watch: {
     value(value) {
-      const editorValue = this.jsonEditor.getValue()
+      const editorValue = this.jsEditor.getValue()
       if (value !== editorValue) {
-        this.jsonEditor.setValue(JSON.stringify(this.value, null, 2))
+        this.jsEditor.setValue(this.value)
       }
     }
   },
   mounted() {
-    this.jsonEditor = CodeMirror.fromTextArea(this.$refs.textarea, {
+    this.jsEditor = CodeMirror.fromTextArea(this.$refs.textarea, {
       lineNumbers: true,
-      mode: 'application/json',
+      mode: 'javascript',
       gutters: ['CodeMirror-lint-markers'],
       theme: 'rubyblue',
-      lint: true
+      lint: true,
+      fontSize: 24
     })
 
-    this.jsonEditor.setValue(JSON.stringify(this.value, null, 2))
-    this.jsonEditor.on('change', cm => {
+    this.jsEditor.setValue(this.value)
+    this.jsEditor.on('change', cm => {
       this.$emit('changed', cm.getValue())
       this.$emit('input', cm.getValue())
     })
   },
   methods: {
     getValue() {
-      return this.jsonEditor.getValue()
+      return this.jsEditor.getValue()
     }
   }
 }
@@ -56,19 +57,18 @@ export default {
 
 <style lang="scss" scoped>
 .json-editor {
-  width: 100%;
   height: 100%;
   position: relative;
 
   ::v-deep {
     .CodeMirror {
       height: auto;
-      min-height: 500px;
+      min-height: 800px;
       font-size: 20px;
     }
 
     .CodeMirror-scroll {
-      min-height: 500px;
+      min-height: 800px;
     }
 
     .cm-s-rubyblue span.cm-string {

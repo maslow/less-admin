@@ -307,6 +307,7 @@ export default {
   position: relative;
   height: 100%;
   margin-top: 10px;
+  width: 1000px;
 }
 </style>
 
