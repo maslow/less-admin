@@ -1,5 +1,10 @@
 <template>
   <div class="components-container">
+    <div class="create-btn" style="margin-bottom: 10px">
+      <el-button v-permission="'rule.create'" type="primary" :disabled="loading" @click="dialogVisible = true">新建</el-button>
+      <el-button v-permission="'rule.read'" icon="el-icon-refresh" type="info" style="margin-left: 5px" :disabled="loading" @click="getRule">刷新</el-button>
+    </div>
+
     <el-select v-model="category" placeholder="选择类别" :loading="loading">
       <el-option
         v-for="item in categories"
@@ -16,9 +21,8 @@
         :value="item"
       />
     </el-select>
-    <el-button v-permission="'rule.edit'" type="primary" style="margin-left: 5px" :disabled="loading" @click="updateRule">保存</el-button>
-
-    <el-button v-permission="'rule.create'" type="" style="margin-left: 20px" :disabled="loading" @click="dialogVisible = true">新建</el-button>
+    <el-button v-permission="'rule.edit'" type="success" style="margin-left: 5px" :disabled="loading" @click="updateRule">保存</el-button>
+    <el-button v-permission="'rule.delete'" type="danger" style="margin-left: 5px" :disabled="loading" @click="removeRule">删除</el-button>
 
     <div class="editor-container">
       <json-editor ref="jsonEditor" v-model="value" />
@@ -75,7 +79,7 @@ const defaultForm = {
   category: ''
 }
 export default {
-  name: 'JsonEditorDemo',
+  name: 'RuleEditorPage',
   components: { JsonEditor },
   data() {
     return {
@@ -84,7 +88,7 @@ export default {
       value: defaultValue,
       rules: [], // 所有规则
       categoried: {}, // 以类别分组的规则
-      category: null,
+      category: null, // 当前选择的规则类别
       categories: [],
       collection: null, // 当前选择的表
       dialogVisible: false
@@ -222,7 +226,46 @@ export default {
       this.dialogVisible = false
       this.loading = false
     },
+    async removeRule() {
+      if (!this.category || !this.collection) {
+        this.$message('请选择要删除的集合规则！')
+        return
+      }
+      if (this.loading) {
+        return
+      }
+      this.loading = true
+
+      const confirm = await this.$confirm('确定删除该条规则，该操作不可恢复？')
+        .catch(() => false)
+
+      if (!confirm) { return this.loading }
+      const r = await db.collection('rules')
+        .where({
+          category: this.category,
+          collection: this.collection
+        })
+        .remove()
+
+      if (r.ok && r.deleted) {
+        this.$notify({
+          title: '操作成功',
+          type: 'success',
+          message: '删除访问规则成功！'
+        })
+        this.getCategories()
+      } else {
+        this.$message('删除访问规则操作失败 ' + r.error)
+      }
+
+      this.loading = false
+    },
     async apply() {
+      const confirm = await this.$confirm('确定应用所有规则？')
+        .catch(() => false)
+
+      if (!confirm) return
+
       const res = await applyRules()
       if (res.data.code) {
         this.$message('应用失败: ' + res.data.error)
