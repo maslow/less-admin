@@ -22,7 +22,7 @@
       />
     </el-select>
     <el-button v-permission="'rule.edit'" type="success" style="margin-left: 5px" :disabled="loading" @click="updateRule">保存</el-button>
-    <el-button v-permission="'rule.delete'" type="danger" style="margin-left: 5px" :disabled="loading" @click="removeRule">删除</el-button>
+    <el-button v-permission="'rule.delete'" type="info" size="mini" style="margin-left: 20px" :disabled="loading" @click="removeRule">删除</el-button>
 
     <div class="editor-container">
       <json-editor ref="jsonEditor" v-model="value" />
@@ -234,12 +234,14 @@ export default {
       if (this.loading) {
         return
       }
-      this.loading = true
 
       const confirm = await this.$confirm('确定删除该条规则，该操作不可恢复？')
         .catch(() => false)
 
-      if (!confirm) { return this.loading }
+      if (!confirm) return
+
+      this.loading = true
+
       const r = await db.collection('rules')
         .where({
           category: this.category,
