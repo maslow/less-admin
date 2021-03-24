@@ -12,7 +12,7 @@ import 'codemirror/theme/rubyblue.css'
 // require('script-loader!jsonlint')
 import 'codemirror/mode/javascript/javascript'
 import 'codemirror/addon/lint/lint'
-import 'codemirror/addon/lint/javascript-lint'
+// import 'codemirror/addon/lint/javascript-lint'
 import 'codemirror/addon/hint/show-hint'
 import 'codemirror/addon/hint/javascript-hint'
 
@@ -40,7 +40,6 @@ export default {
       gutters: ['CodeMirror-lint-markers'],
       theme: 'rubyblue',
       lint: true,
-      hint: 'auto',
       fontSize: 24,
       autocorrect: true,
       spellcheck: true,
