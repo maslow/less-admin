@@ -108,7 +108,7 @@ export default {
       loading: false,
       value: defaultValue,
       functions: [], // 所有函数
-      currentFuncIndex: 0,
+      currentFuncIndex: null,
       dialogVisible: false,
       invokeParams: defaultParamValue,
       invokeResult: null
@@ -164,9 +164,11 @@ export default {
         return
       }
 
-      this.functions = r.data
-      this.currentFuncIndex = 0
-      this.value = this.func.code
+      if (r.data.length) {
+        this.functions = r.data
+        this.currentFuncIndex = 0
+        this.value = this.func.code
+      }
       this.loading = false
     },
     async updateFunc() {

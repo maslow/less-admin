@@ -80,7 +80,7 @@ export const asyncRoutes = [
           title: '云函数',
           icon: 'lock',
           noCache: true,
-          permissions: ['function.read', 'function.edit', 'function.publish', 'functino.create', 'rule.function']
+          permissions: ['function.read', 'function.edit', 'function.publish', 'functino.create', 'function.debug']
         }
       }
     ]
