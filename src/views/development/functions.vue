@@ -22,16 +22,16 @@
       <div class="editor-container">
         <js-editor ref="jsEditor" v-model="value" />
       </div>
-      <div v-if="launchResult" class="log-container">
-        <div class="title">函数调用</div>
+      <div v-if="invokeResult" class="log-container">
+        <div class="title">函数调用 <span v-if="invokeResult">（ RequestId: {{ invokeResult.requestId }} ）</span></div>
         <div class="logs">
           <div v-for="(log, index) in logs" :key="index" class="log-item">
             <pre>- {{ log }}</pre>
           </div>
         </div>
-        <div class="title" style="margin-top: 20px">调用结果</div>
+        <div class="title" style="margin-top: 20px">调用结果 <span v-if="invokeTime"> （ {{ invokeTime }} ms ）</span></div>
         <div class="result">
-          <pre>{{ launchData || '[ undefined ]' }}</pre>
+          <pre>{{ invokeReturn || '[ undefined ]' }}</pre>
         </div>
       </div>
     </div>
@@ -98,7 +98,7 @@ export default {
       functions: [], // 所有函数
       currentFuncIndex: 0,
       dialogVisible: false,
-      launchResult: null
+      invokeResult: null
     }
   },
   computed: {
@@ -110,20 +110,26 @@ export default {
       }
       return this.functions[this.currentFuncIndex]
     },
-    // 运行日志
+    // 调用云函数的日志
     logs() {
-      if (!this.launchResult) {
+      if (!this.invokeResult) {
         return []
       }
-      return this.launchResult.logs
+      return this.invokeResult.logs
     },
-    // 运行结果数据
-    launchData() {
-      if (!this.launchResult) {
+    // 调用云函数返回的值
+    invokeReturn() {
+      if (!this.invokeResult) {
         return ''
       }
-
-      return this.launchResult.data
+      return this.invokeResult.data
+    },
+    // 云函数执行用时
+    invokeTime() {
+      if (!this.invokeResult) {
+        return null
+      }
+      return this.invokeResult.time_usage
     }
   },
   watch: {
@@ -278,7 +284,7 @@ export default {
         return
       }
       const res = await launchFunction(this.func.name, {}, true)
-      this.launchResult = res
+      this.invokeResult = res
     },
     validate() {
       let error = null
@@ -310,23 +316,27 @@ export default {
   padding-left: 20px;
   padding-top: 10px;
   width: 50%;
-}
-.log-container .title {
-  font-weight: bold;
-}
-.log-container .logs {
-  margin-top: 10px;
-  padding: 10px;
-  padding-left: 20px;
-  background: rgba(233, 243, 221, 0.472);
-  border-radius: 10px;
-  overflow-x: auto;
-}
-.log-container .result {
-  margin-top: 10px;
-  padding: 16px;
-  background: rgba(233, 243, 221, 0.472);
-  border-radius: 10px;
+  .title {
+    font-weight: bold;
+    span {
+      font-weight: normal;
+      color: gray;
+    }
+  }
+  .logs {
+    margin-top: 10px;
+    padding: 10px;
+    padding-left: 20px;
+    background: rgba(233, 243, 221, 0.472);
+    border-radius: 10px;
+    overflow-x: auto;
+  }
+  .result {
+    margin-top: 10px;
+    padding: 16px;
+    background: rgba(233, 243, 221, 0.472);
+    border-radius: 10px;
+  }
 }
 </style>
 
