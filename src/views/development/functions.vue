@@ -277,9 +277,8 @@ export default {
       if (this.loading) {
         return
       }
-      const res = await launchFunction(this.func.name, {})
+      const res = await launchFunction(this.func.name, {}, true)
       this.launchResult = res
-      console.log(this.launchResult)
     },
     validate() {
       let error = null
@@ -299,7 +298,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .editor-container{
   position: relative;
   height: 100%;
@@ -321,6 +320,7 @@ export default {
   padding-left: 20px;
   background: rgba(233, 243, 221, 0.472);
   border-radius: 10px;
+  overflow-x: auto;
 }
 .log-container .result {
   margin-top: 10px;
