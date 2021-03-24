@@ -244,7 +244,7 @@ export default {
 
       await this.getFunctions()
 
-      this.func = this.functions[0]
+      this.currentFuncIndex = 0
 
       this.$notify({
         type: 'success',
