@@ -5,7 +5,7 @@
       <el-button v-permission="'function.read'" icon="el-icon-refresh" type="info" style="margin-left: 5px" :disabled="loading" @click="getFunctions">刷新</el-button>
     </div>
 
-    <el-select v-model="currentFuncIndex" placeholder="选择函数" style="margin-left: 5px" :loading="loading">
+    <el-select v-model="currentFuncIndex" placeholder="选择函数" style="margin-left: 5px; width: 300px" :loading="loading">
       <el-option
         v-for="(item, index) in functions"
         :key="item._id"
@@ -16,22 +16,29 @@
     <el-button v-permission="'function.edit'" type="primary" style="margin-left: 5px" :disabled="loading || !functions.length" @click="updateFunc">保存</el-button>
     <el-button v-permission="'function.delete'" type="info" size="mini" style="margin-left: 20px" :disabled="loading|| !functions.length" @click="removeFunc">删除</el-button>
 
-    <el-button v-permission="'function.edit'" type="success" style="margin-left: 100px" :disabled="loading || !func" @click="launch">运行</el-button>
-
     <div style="display: flex;">
       <div class="editor-container">
         <js-editor ref="jsEditor" v-model="value" />
       </div>
-      <div v-if="invokeResult" class="log-container">
-        <div class="title">函数调用 <span v-if="invokeResult">（ RequestId: {{ invokeResult.requestId }} ）</span></div>
-        <div class="logs">
-          <div v-for="(log, index) in logs" :key="index" class="log-item">
-            <pre>- {{ log }}</pre>
-          </div>
+      <div class="invoke-panel">
+        <div class="title">调用参数
+          <el-button v-permission="'function.debug'" size="mini" type="success" style="margin-left: 10px" :disabled="loading || !func" @click="launch">运行</el-button>
+
         </div>
-        <div class="title" style="margin-top: 20px">调用结果 <span v-if="invokeTime"> （ {{ invokeTime }} ms ）</span></div>
-        <div class="result">
-          <pre>{{ invokeReturn || '[ undefined ]' }}</pre>
+        <div class="editor">
+          <json-editor ref="jsonEditor" v-model="invokeParams" :line-numbers="true" />
+        </div>
+        <div v-if="invokeResult" class="invoke-result">
+          <div class="title">执行日志 <span v-if="invokeResult">（ RequestId: {{ invokeResult.requestId }} ）</span></div>
+          <div class="logs">
+            <div v-for="(log, index) in logs" :key="index" class="log-item">
+              <pre>- {{ log }}</pre>
+            </div>
+          </div>
+          <div class="title" style="margin-top: 20px">调用结果 <span v-if="invokeTime"> （ {{ invokeTime }} ms ）</span></div>
+          <div class="result">
+            <pre>{{ invokeReturn || '[ undefined ]' }}</pre>
+          </div>
         </div>
       </div>
     </div>
@@ -68,12 +75,13 @@
 
 <script>
 import jsEditor from '@/components/JsEditor'
+import jsonEditor from '@/components/JsonEditor'
 import { db } from '@/api/cloud'
 import { launchFunction } from '@/api/func'
 
 const defaultValue = `
-async function (ctx) {
-  const { params, auth, requestId } = ctx
+exports.main = async function (ctx) {
+  const { auth, body } = ctx
   const db = less.database()
 
   console.log(requestId)
@@ -87,9 +95,13 @@ const defaultForm = {
   label: '',
   description: ''
 }
+
+const defaultParamValue = {
+  greeting: 'hi'
+}
 export default {
   name: 'FunctionEditorPage',
-  components: { jsEditor },
+  components: { jsEditor, jsonEditor },
   data() {
     return {
       form: { ...defaultForm },
@@ -98,6 +110,7 @@ export default {
       functions: [], // 所有函数
       currentFuncIndex: 0,
       dialogVisible: false,
+      invokeParams: defaultParamValue,
       invokeResult: null
     }
   },
@@ -229,7 +242,7 @@ export default {
 
       await this.getFunctions()
 
-      this.func = this.functions[this.functions.length - 1]
+      this.func = this.functions[0]
 
       this.$notify({
         type: 'success',
@@ -283,7 +296,9 @@ export default {
       if (this.loading) {
         return
       }
-      const res = await launchFunction(this.func.name, {}, true)
+
+      const param = this.invokeParams
+      const res = await launchFunction(this.func.name, param, true)
       this.invokeResult = res
     },
     validate() {
@@ -312,7 +327,7 @@ export default {
   width: 50%;
 }
 
-.log-container {
+.invoke-panel {
   padding-left: 20px;
   padding-top: 10px;
   width: 50%;
@@ -323,19 +338,28 @@ export default {
       color: gray;
     }
   }
-  .logs {
+  .editor{
     margin-top: 10px;
-    padding: 10px;
-    padding-left: 20px;
-    background: rgba(233, 243, 221, 0.472);
-    border-radius: 10px;
-    overflow-x: auto;
+    border: 1px dashed gray;
+    margin-left: 2px;
+    width: 80%;
   }
-  .result {
-    margin-top: 10px;
-    padding: 16px;
-    background: rgba(233, 243, 221, 0.472);
-    border-radius: 10px;
+  .invoke-result {
+    margin-top: 20px;
+    .logs {
+      margin-top: 10px;
+      padding: 10px;
+      padding-left: 20px;
+      background: rgba(233, 243, 221, 0.472);
+      border-radius: 10px;
+      overflow-x: auto;
+    }
+    .result {
+      margin-top: 10px;
+      padding: 16px;
+      background: rgba(233, 243, 221, 0.472);
+      border-radius: 10px;
+    }
   }
 }
 </style>

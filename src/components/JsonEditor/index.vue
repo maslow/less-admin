@@ -17,7 +17,7 @@ import 'codemirror/addon/lint/json-lint'
 export default {
   name: 'JsonEditor',
   /* eslint-disable vue/require-prop-types */
-  props: ['value'],
+  props: ['value', 'lineNumbers', 'mode', 'dark'],
   data() {
     return {
       jsonEditor: false
@@ -33,10 +33,10 @@ export default {
   },
   mounted() {
     this.jsonEditor = CodeMirror.fromTextArea(this.$refs.textarea, {
-      lineNumbers: true,
-      mode: 'application/json',
-      gutters: ['CodeMirror-lint-markers'],
-      theme: 'rubyblue',
+      lineNumbers: this.lineNumbers ?? true,
+      mode: this.mode || 'application/json',
+      gutters: this.lineNumbers ? ['CodeMirror-lint-markers'] : [],
+      theme: this.dark ? 'rubyblue' : '',
       lint: true
     })
 
@@ -63,12 +63,12 @@ export default {
   ::v-deep {
     .CodeMirror {
       height: auto;
-      min-height: 500px;
+      min-height: 200px;
       font-size: 20px;
     }
 
     .CodeMirror-scroll {
-      min-height: 500px;
+      min-height: 200px;
     }
 
     .cm-s-rubyblue span.cm-string {
