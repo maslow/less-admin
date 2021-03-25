@@ -1,11 +1,28 @@
 <template>
   <div class="components-container">
     <div class="create-btn" style="margin-bottom: 10px">
-      <el-button v-permission="'function.create'" type="primary" :disabled="loading" @click="dialogVisible = true">新建</el-button>
-      <el-button v-permission="'function.read'" icon="el-icon-refresh" type="info" style="margin-left: 5px" :disabled="loading" @click="getFunctions">刷新</el-button>
+      <el-button
+        v-permission="'function.create'"
+        type="primary"
+        :disabled="loading"
+        @click="dialogVisible = true"
+      >新建</el-button>
+      <el-button
+        v-permission="'function.read'"
+        icon="el-icon-refresh"
+        type="info"
+        style="margin-left: 5px"
+        :disabled="loading"
+        @click="getFunctions"
+      >刷新</el-button>
     </div>
 
-    <el-select v-model="currentFuncIndex" placeholder="选择函数" style="margin-left: 5px; width: 300px" :loading="loading">
+    <el-select
+      v-model="currentFuncIndex"
+      placeholder="选择函数"
+      style="margin-left: 5px; width: 300px"
+      :loading="loading"
+    >
       <el-option
         v-for="(item, index) in functions"
         :key="item._id"
@@ -13,29 +30,60 @@
         :value="index"
       />
     </el-select>
-    <el-button v-permission="'function.edit'" type="primary" style="margin-left: 5px" :disabled="loading || !functions.length" @click="updateFunc">保存</el-button>
-    <el-button v-permission="'function.delete'" type="info" size="mini" style="margin-left: 20px" :disabled="loading|| !functions.length" @click="removeFunc">删除</el-button>
+    <el-button
+      v-permission="'function.edit'"
+      type="primary"
+      style="margin-left: 5px"
+      :disabled="loading || !functions.length"
+      @click="updateFunc"
+    >保存</el-button>
+    <el-button
+      v-permission="'function.delete'"
+      type="info"
+      size="mini"
+      style="margin-left: 20px"
+      :disabled="loading || !functions.length"
+      @click="removeFunc"
+    >删除</el-button>
 
     <div style="display: flex;">
       <div class="editor-container">
         <js-editor ref="jsEditor" v-model="value" />
       </div>
       <div class="invoke-panel">
-        <div class="title">调用参数
-          <el-button v-permission="'function.debug'" size="mini" type="success" style="margin-left: 10px" :disabled="loading || !func" @click="launch">运行</el-button>
-
+        <div class="title">
+          调用参数
+          <el-button
+            v-permission="'function.debug'"
+            size="mini"
+            type="success"
+            style="margin-left: 10px"
+            :disabled="loading || !func"
+            @click="launch"
+          >运行</el-button>
         </div>
         <div class="editor">
-          <json-editor ref="jsonEditor" v-model="invokeParams" :line-numbers="true" />
+          <json-editor
+            ref="jsonEditor"
+            v-model="invokeParams"
+            :line-numbers="true"
+          />
         </div>
         <div v-if="invokeResult" class="invoke-result">
-          <div class="title">执行日志 <span v-if="invokeResult">（ RequestId: {{ invokeResult.requestId }} ）</span></div>
+          <div class="title">
+            执行日志
+            <span
+              v-if="invokeResult"
+            >（ RequestId: {{ invokeResult.requestId }} ）</span>
+          </div>
           <div class="logs">
             <div v-for="(log, index) in logs" :key="index" class="log-item">
               <pre>- {{ log }}</pre>
             </div>
           </div>
-          <div class="title" style="margin-top: 20px">调用结果 <span v-if="invokeTime"> （ {{ invokeTime }} ms ）</span></div>
+          <div class="title" style="margin-top: 20px">
+            调用结果 <span v-if="invokeTime"> （ {{ invokeTime }} ms ）</span>
+          </div>
           <div class="result">
             <pre>{{ invokeReturn || '[ undefined ]' }}</pre>
           </div>
@@ -44,11 +92,7 @@
     </div>
 
     <!-- 表单 -->
-    <el-dialog
-      :visible.sync="dialogVisible"
-      title="创建函数"
-      width="400px"
-    >
+    <el-dialog :visible.sync="dialogVisible" title="创建函数" width="400px">
       <el-form :model="form" label-width="80px" label-position="left">
         <el-form-item label="函数名称">
           <el-input v-model="form.name" placeholder="函数名" />
@@ -61,10 +105,7 @@
         </el-form-item>
       </el-form>
       <div style="text-align:right;">
-        <el-button
-          type="info"
-          @click="dialogVisible = false"
-        >
+        <el-button type="info" @click="dialogVisible = false">
           取消
         </el-button>
         <el-button type="primary" @click="create">确认</el-button>
@@ -97,7 +138,7 @@ const defaultForm = {
 }
 
 const defaultParamValue = {
-  greeting: 'hi'
+  code: 'hi'
 }
 export default {
   name: 'FunctionEditorPage',
@@ -156,8 +197,7 @@ export default {
   methods: {
     async getFunctions() {
       this.loading = true
-      const r = await db.collection('functions')
-        .get()
+      const r = await db.collection('functions').get()
 
       if (!r.ok) {
         console.error(r.error)
@@ -180,7 +220,8 @@ export default {
       }
 
       this.loading = true
-      const r = await db.collection('functions')
+      const r = await db
+        .collection('functions')
         .where({
           _id: this.func._id
         })
@@ -213,28 +254,29 @@ export default {
       }
       this.loading = true
 
-      const { total } = await db.collection('functions')
+      const { total } = await db
+        .collection('functions')
         .where({
           name: this.form.name
-        }).count()
+        })
+        .count()
 
       if (total) {
         this.loading = false
         this.$message('该函数函数已存在！')
         return
       }
-      const r = await db.collection('functions')
-        .add({
-          name: this.form.name,
-          label: this.form.label,
-          code: defaultValue,
-          tags: this.form.tags,
-          description: this.form.description,
-          status: 0,
-          version: 0,
-          create_time: Date.now(),
-          update_time: Date.now()
-        })
+      const r = await db.collection('functions').add({
+        name: this.form.name,
+        label: this.form.label,
+        code: defaultValue,
+        tags: this.form.tags,
+        description: this.form.description,
+        status: 0,
+        version: 0,
+        create_time: Date.now(),
+        update_time: Date.now()
+      })
 
       if (!r.ok) {
         this.$message('创建失败!')
@@ -264,14 +306,16 @@ export default {
         return
       }
 
-      const confirm = await this.$confirm('确定删除该条函数，该操作不可恢复？')
-        .catch(() => false)
+      const confirm = await this.$confirm(
+        '确定删除该条函数，该操作不可恢复？'
+      ).catch(() => false)
 
       if (!confirm) return
 
       this.loading = true
 
-      const r = await db.collection('functions')
+      const r = await db
+        .collection('functions')
         .where({
           _id: this.func._id
         })
@@ -299,7 +343,10 @@ export default {
         return
       }
 
-      const param = this.invokeParams
+      let param = this.invokeParams
+      if (typeof param === 'string') {
+        param = JSON.parse(param)
+      }
       const res = await launchFunction(this.func.name, param, true)
       this.invokeResult = res
     },
@@ -322,7 +369,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.editor-container{
+.editor-container {
   position: relative;
   height: 100%;
   margin-top: 10px;
@@ -340,7 +387,7 @@ export default {
       color: gray;
     }
   }
-  .editor{
+  .editor {
     margin-top: 10px;
     border: 1px dashed gray;
     margin-left: 2px;
