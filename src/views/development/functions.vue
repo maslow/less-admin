@@ -122,11 +122,26 @@ import { launchFunction } from '@/api/func'
 
 const defaultValue = `
 exports.main = async function (ctx) {
-  const { auth, body } = ctx
-  const db = less.database()
+  // body, query 为请求参数, auth 是授权对象
+  const { auth, body, query } = ctx
 
-  console.log(requestId)
-  return 'ok'
+  // 数据库操作
+  const db = less.database()
+  const db_res = await db.collection('roles').get()
+  console.log(db_res)
+
+  // 文件操作
+  const fs = less.storage('public')
+  const data = await fs.readFile("your_filename")
+
+  // 网络操作
+  const res = await less.fetch("https://www.baidu.com")
+  console.log(res.data)
+
+  return {
+    fetch: res.data,
+    data: db_res.data
+  }
 }
 `
 const defaultForm = {
