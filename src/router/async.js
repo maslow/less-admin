@@ -2,8 +2,6 @@ import Layout from '@/layout'
 
 /* Router Modules */
 import componentsRouter from './modules/components'
-// import chartsRouter from './modules/charts'
-// import tableRouter from './modules/table'
 
 /**
  * asyncRoutes
@@ -82,12 +80,22 @@ export const asyncRoutes = [
           noCache: true,
           permissions: ['function.read', 'function.edit', 'function.publish', 'functino.create', 'function.debug']
         }
+      },
+      {
+        path: 'function/:id',
+        component: () => import('@/views/development/function'),
+        name: 'FunctionEdit',
+        hidden: true,
+        meta: {
+          title: '调试云函数',
+          icon: 'lock',
+          noCache: true,
+          permissions: ['function.read', 'function.edit', 'function.publish', 'functino.create', 'function.debug']
+        }
       }
     ]
   },
   componentsRouter,
-  // chartsRouter,
-  // tableRouter,
   {
     path: 'external-link',
     component: Layout,

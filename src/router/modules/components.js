@@ -43,22 +43,10 @@ const componentsRouter = {
       meta: { title: 'Dropzone' }
     },
     {
-      path: 'mixin',
-      component: () => import('@/views/components-demo/mixin'),
-      name: 'ComponentMixinDemo',
-      meta: { title: 'Component Mixin' }
-    },
-    {
       path: 'drag-dialog',
       component: () => import('@/views/components-demo/drag-dialog'),
       name: 'DragDialogDemo',
       meta: { title: 'Drag Dialog' }
-    },
-    {
-      path: 'drag-select',
-      component: () => import('@/views/components-demo/drag-select'),
-      name: 'DragSelectDemo',
-      meta: { title: 'Drag Select' }
     },
     {
       path: 'drag-kanban',

@@ -12,7 +12,7 @@ import 'codemirror/theme/rubyblue.css'
 require('script-loader!jsonlint')
 import 'codemirror/mode/javascript/javascript'
 import 'codemirror/addon/lint/lint'
-import 'codemirror/addon/lint/json-lint'
+// import 'codemirror/addon/lint/json-lint'
 
 export default {
   name: 'JsonEditor',

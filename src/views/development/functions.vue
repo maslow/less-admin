@@ -1,126 +1,159 @@
 <template>
-  <div class="components-container">
-    <div class="create-btn" style="margin-bottom: 10px">
-      <el-button
-        v-permission="'function.create'"
-        type="primary"
-        :disabled="loading"
-        @click="dialogVisible = true"
-      >新建</el-button>
-      <el-button
-        v-permission="'function.read'"
-        icon="el-icon-refresh"
-        type="info"
-        style="margin-left: 5px"
-        :disabled="loading"
-        @click="getFunctions"
-      >刷新</el-button>
-    </div>
-
-    <el-select
-      v-model="currentFuncIndex"
-      placeholder="选择函数"
-      style="margin-left: 5px; width: 300px"
-      :loading="loading"
-    >
-      <el-option
-        v-for="(item, index) in functions"
-        :key="item._id"
-        :label="item.label + ` (${item.name}) `"
-        :value="index"
+  <div class="app-container">
+    <!-- 数据检索区 -->
+    <div class="filter-container">
+      <el-input
+        v-model="listQuery.keyword"
+        placeholder="搜索"
+        style="width: 200px;margin-right: 10px;"
+        class="filter-item"
+        @keyup.enter.native="handleFilter"
       />
-    </el-select>
-    <el-button
-      v-permission="'function.edit'"
-      type="primary"
-      style="margin-left: 5px"
-      :disabled="loading || !functions.length"
-      @click="updateFunc"
-    >保存</el-button>
-    <el-button
-      v-permission="'function.delete'"
-      type="info"
-      size="mini"
-      style="margin-left: 20px"
-      :disabled="loading || !functions.length"
-      @click="removeFunc"
-    >删除</el-button>
-
-    <div style="display: flex;">
-      <div class="editor-container">
-        <js-editor ref="jsEditor" v-model="value" />
-      </div>
-      <div class="invoke-panel">
-        <div class="title">
-          调用参数
-          <el-button
-            v-permission="'function.debug'"
-            size="mini"
-            type="success"
-            style="margin-left: 10px"
-            :disabled="loading || !func"
-            @click="launch"
-          >运行</el-button>
-        </div>
-        <div class="editor">
-          <json-editor
-            ref="jsonEditor"
-            v-model="invokeParams"
-            :line-numbers="true"
-          />
-        </div>
-        <div v-if="invokeResult" class="invoke-result">
-          <div class="title">
-            执行日志
-            <span
-              v-if="invokeResult"
-            >（ RequestId: {{ invokeResult.requestId }} ）</span>
-          </div>
-          <div class="logs">
-            <div v-for="(log, index) in logs" :key="index" class="log-item">
-              <pre>- {{ log }}</pre>
-            </div>
-          </div>
-          <div class="title" style="margin-top: 20px">
-            调用结果 <span v-if="invokeTime"> （ {{ invokeTime }} ms ）</span>
-          </div>
-          <div class="result">
-            <pre>{{ invokeReturn || '[ undefined ]' }}</pre>
-          </div>
-        </div>
-      </div>
+      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
+        搜索
+      </el-button>
+      <el-button
+        v-waves
+        :loading="downloadLoading"
+        class="filter-item"
+        type="primary"
+        icon="el-icon-download"
+        @click="handleDownload"
+      >
+        导出
+      </el-button>
+      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="showCreateForm">
+        新建函数
+      </el-button>
     </div>
 
-    <!-- 表单 -->
-    <el-dialog :visible.sync="dialogVisible" title="创建函数" width="400px">
-      <el-form :model="form" label-width="80px" label-position="left">
-        <el-form-item label="函数名称">
-          <el-input v-model="form.name" placeholder="函数名" />
+    <!-- 表格 -->
+    <el-table
+      :key="tableKey"
+      v-loading="listLoading"
+      :data="list"
+      border
+      fit
+      highlight-current-row
+      style="width: 100%;"
+    >
+      <el-table-column
+        label="ID"
+        prop="id"
+        sortable="custom"
+        align="center"
+        width="240"
+      >
+        <template slot-scope="{row}">
+          <span>{{ row._id }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="函数名" width="150px">
+        <template slot-scope="{row}">
+          <span>{{ row.name }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="名称" min-width="150px">
+        <template slot-scope="{row}">
+          <span class="link-type" @click="showUpdateForm(row)">{{ row.label }}</span>
+          <el-tag v-for="tag in row.tags" :key="tag">{{ tag }}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="函数说明" align="center">
+        <template slot-scope="{row}">
+          <span v-if="row.description">{{ row.description }}</span>
+          <span v-else>-</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="创建时间" width="150px" align="center">
+        <template slot-scope="{row}">
+          <span v-if="row.created_at">{{ row.created_at | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span v-else>-</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="更新时间" width="150px" align="center">
+        <template slot-scope="{row}">
+          <span v-if="row.updated_at">{{ row.updated_at | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span v-else>-</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="状态" class-name="status-col" width="120">
+        <template slot-scope="{row}">
+          <el-tag type="success">
+            {{ row.status | statusFilter }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" align="center" width="340" class-name="small-padding fixed-width">
+        <template slot-scope="{row,$index}">
+          <el-button type="success" size="mini" @click="handleShowDetail(row)">
+            调试
+          </el-button>
+          <el-button size="mini">
+            日志
+          </el-button>
+          <el-button type="primary" size="mini" @click="showUpdateForm(row)">
+            编辑
+          </el-button>
+          <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
+            删除
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <!-- 分页 -->
+    <pagination
+      v-show="total>0"
+      :total="total"
+      :page.sync="listQuery.page"
+      :limit.sync="listQuery.limit"
+      @pagination="getList"
+    />
+
+    <!-- 表单对话框 -->
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+      <el-form
+        ref="dataForm"
+        :rules="rules"
+        :model="form"
+        label-position="left"
+        label-width="70px"
+        style="width: 400px; margin-left:50px;"
+      >
+        <el-form-item label="显示名称" prop="label">
+          <el-input v-model="form.label" placeholder="函数显示名，可为中文" />
         </el-form-item>
-        <el-form-item label="显示名称">
-          <el-input v-model="form.label" placeholder="显示名称" />
+        <el-form-item label="函数名" prop="name">
+          <el-input v-model="form.name" placeholder="函数的唯一标识，如 get-user" />
         </el-form-item>
         <el-form-item label="函数描述">
-          <el-input v-model="form.description" placeholder="函数描述" />
+          <el-input
+            v-model="form.description"
+            :autosize="{ minRows: 3, maxRows: 6}"
+            type="textarea"
+            placeholder="函数描述"
+          />
         </el-form-item>
       </el-form>
-      <div style="text-align:right;">
-        <el-button type="info" @click="dialogVisible = false">
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">
           取消
         </el-button>
-        <el-button type="primary" @click="create">确认</el-button>
+        <el-button type="primary" @click="dialogStatus==='create'?handleCreate():handleUpdate()">
+          确定
+        </el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import jsEditor from '@/components/JsEditor'
-import jsonEditor from '@/components/JsonEditor'
+import waves from '@/directive/waves' // waves directive
+import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 import { db } from '@/api/cloud'
-import { launchFunction } from '@/api/func'
 
-const defaultValue = `
+const defaultCode = `
 exports.main = async function (ctx) {
   // body, query 为请求参数, auth 是授权对象
   const { auth, body, query } = ctx
@@ -144,287 +177,228 @@ exports.main = async function (ctx) {
   }
 }
 `
-const defaultForm = {
-  name: '',
-  code: defaultValue,
-  tags: [],
-  label: '',
-  description: ''
+
+// 默认化创建表单的值
+function getDefaultFormValue() {
+  return {
+    _id: undefined,
+    name: '',
+    label: '',
+    description: '',
+    status: 0,
+    tags: [],
+    version: 0,
+    created_at: Date.now(),
+    updated_at: Date.now(),
+    code: defaultCode
+  }
 }
 
-const defaultParamValue = {
-  code: 'hi'
+const formRules = {
+  name: [{ required: true, message: '函数名不可为空', trigger: 'blur' }],
+  label: [{ required: true, message: '函数显示名称不可为空', trigger: 'blur' }]
 }
+
 export default {
-  name: 'FunctionEditorPage',
-  components: { jsEditor, jsonEditor },
+  name: 'ProperCaseName',
+  components: { Pagination },
+  directives: { waves },
+  filters: {
+    statusFilter(status) {
+      status = status ?? 0
+      const statusMap = {
+        0: 'published'
+      }
+      return statusMap[status]
+    }
+  },
   data() {
     return {
-      form: { ...defaultForm },
-      loading: false,
-      value: defaultValue,
-      functions: [], // 所有函数
-      currentFuncIndex: null,
-      dialogVisible: false,
-      invokeParams: defaultParamValue,
-      invokeResult: null
-    }
-  },
-  computed: {
-    // 当前选择的函数
-    func() {
-      const funcs = this.functions
-      if (!funcs || !funcs.length) {
-        return null
-      }
-      return this.functions[this.currentFuncIndex]
-    },
-    // 调用云函数的日志
-    logs() {
-      if (!this.invokeResult) {
-        return []
-      }
-      return this.invokeResult.logs
-    },
-    // 调用云函数返回的值
-    invokeReturn() {
-      if (!this.invokeResult) {
-        return ''
-      }
-      return this.invokeResult.data
-    },
-    // 云函数执行用时
-    invokeTime() {
-      if (!this.invokeResult) {
-        return null
-      }
-      return this.invokeResult.time_usage
-    }
-  },
-  watch: {
-    func(val) {
-      this.value = val.code
+      tableKey: 0,
+      list: null,
+      total: 0,
+      listLoading: true,
+      listQuery: {
+        page: 1,
+        limit: 20,
+        keyword: undefined
+      },
+      showReviewer: false,
+      form: getDefaultFormValue(),
+      dialogFormVisible: false,
+      dialogStatus: '',
+      textMap: {
+        update: '编辑',
+        create: '创建'
+      },
+      rules: formRules,
+      downloadLoading: false
     }
   },
   created() {
-    this.getFunctions()
+    this.getList()
   },
   methods: {
-    async getFunctions() {
-      this.loading = true
-      const r = await db.collection('functions').get()
+    /**
+     * 获取数据列表
+     */
+    async getList() {
+      this.listLoading = true
 
-      if (!r.ok) {
-        console.error(r.error)
-        return
+      // 拼装查询条件 by this.listQuery
+      const { limit, page, keyword } = this.listQuery
+      const query = { }
+      if (keyword) {
+        query['$or'] = [
+          { name: db.RegExp({ regexp: `.*${keyword}.*` }) },
+          { label: db.RegExp({ regexp: `.*${keyword}.*` }) },
+          { description: db.RegExp({ regexp: `.*${keyword}.*` }) }
+        ]
       }
 
-      if (r.data.length) {
-        this.functions = r.data
-        this.currentFuncIndex = 0
-        this.value = this.func.code
-      }
-      this.loading = false
-    },
-    async updateFunc() {
-      if (this.loading) {
-        return
-      }
-      if (this.validate()) {
-        return
-      }
+      // 执行数据查询
+      const res = await db.collection('functions')
+        .where(query)
+        .limit(limit)
+        .skip((page - 1) * limit)
+        .get()
+        .catch(() => { this.listLoading = false })
 
-      this.loading = true
-      const r = await db
-        .collection('functions')
-        .where({
-          _id: this.func._id
-        })
-        .update({
-          code: this.value,
-          update_time: Date.now()
-        })
+      this.list = res.data
 
-      if (!r.ok) {
-        this.$message('保存失败!')
-        this.loading = false
-        return
-      }
-
-      this.$notify({
-        type: 'success',
-        title: '保存',
-        message: '保存云函数成功!'
-      })
-
-      this.loading = false
-    },
-    async create() {
-      if (!this.form.name || !this.form.label) {
-        this.$message('请正确填写表单！')
-        return
-      }
-      if (this.loading) {
-        return
-      }
-      this.loading = true
-
-      const { total } = await db
-        .collection('functions')
-        .where({
-          name: this.form.name
-        })
+      // 获取数据总数
+      const { total } = await db.collection('functions')
         .count()
+        .catch(() => { this.listLoading = false })
 
-      if (total) {
-        this.loading = false
-        this.$message('该函数函数已存在！')
-        return
-      }
-      const r = await db.collection('functions').add({
-        name: this.form.name,
-        label: this.form.label,
-        code: defaultValue,
-        tags: this.form.tags,
-        description: this.form.description,
-        status: 0,
-        version: 0,
-        create_time: Date.now(),
-        update_time: Date.now()
-      })
-
-      if (!r.ok) {
-        this.$message('创建失败!')
-        this.loading = false
-        return
-      }
-
-      await this.getFunctions()
-
-      this.currentFuncIndex = 0
-
-      this.$notify({
-        type: 'success',
-        title: '操作结果',
-        message: '创建函数成功!'
-      })
-      this.form = { ...defaultForm }
-      this.dialogVisible = false
-      this.loading = false
+      this.total = total
+      this.listLoading = false
     },
-    async removeFunc() {
-      if (!this.func) {
-        this.$message('请选择要删除的函数！')
-        return
-      }
-      if (this.loading) {
-        return
-      }
+    // 搜索
+    handleFilter() {
+      this.listQuery.page = 1
+      this.getList()
+    },
+    // 显示创建表单
+    showCreateForm() {
+      this.form = getDefaultFormValue()
+      this.dialogStatus = 'create'
+      this.dialogFormVisible = true
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
+    },
+    // 创建请求
+    handleCreate() {
+      this.$refs['dataForm'].validate(async(valid) => {
+        if (!valid) { return }
 
-      const confirm = await this.$confirm(
-        '确定删除该条函数，该操作不可恢复？'
-      ).catch(() => false)
+        // 执行创建请求
+        const r = await db.collection('functions')
+          .add(this.form)
 
-      if (!confirm) return
+        if (!r.id) {
+          this.$notify({
+            type: 'error',
+            title: '操作失败',
+            message: '创建失败！' + r.error
+          })
+          return
+        }
 
-      this.loading = true
-
-      const r = await db
-        .collection('functions')
-        .where({
-          _id: this.func._id
+        this.$notify({
+          type: 'success',
+          title: '操作成功',
+          message: '创建成功！'
         })
+
+        this.getList()
+        this.dialogFormVisible = false
+      })
+    },
+    // 显示更新表单
+    showUpdateForm(row) {
+      this.form = Object.assign({}, row) // copy obj
+      this.dialogStatus = 'update'
+      this.dialogFormVisible = true
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
+    },
+    // 更新请求
+    handleUpdate() {
+      this.$refs['dataForm'].validate(async(valid) => {
+        if (!valid) { return }
+
+        // 执行创建请求
+        const r = await db.collection('functions')
+          .where({ _id: this.form._id })
+          .update({
+            name: this.form.name,
+            label: this.form.label,
+            description: this.form.description,
+            updated_at: Date.now()
+          })
+
+        if (!r.ok) {
+          this.$notify({
+            type: 'error',
+            title: '操作失败',
+            message: '更新失败！' + r.error
+          })
+          return
+        }
+
+        this.$notify({
+          type: 'success',
+          title: '操作成功',
+          message: '更新成功！'
+        })
+
+        this.getList()
+        this.dialogFormVisible = false
+      })
+    },
+    // 删除请求
+    async handleDelete(row, index) {
+      await this.$confirm('确认要删除此数据？', '删除确认')
+
+      // 执行删除请求
+      const r = await db.collection('functions')
+        .where({ _id: row._id })
         .remove()
 
-      if (r.ok && r.deleted) {
+      if (!r.ok) {
         this.$notify({
-          title: '操作成功',
-          type: 'success',
-          message: '删除云函数成功！'
+          type: 'error',
+          title: '操作失败',
+          message: '删除失败！' + r.error
         })
-        this.getFunctions()
-      } else {
-        this.$message('删除云函数操作失败 ' + r.error)
-      }
-
-      this.loading = false
-    },
-    async launch() {
-      if (!this.func) {
-        this.$message('请选择要运行的函数！')
-        return
-      }
-      if (this.loading) {
         return
       }
 
-      let param = this.invokeParams
-      if (typeof param === 'string') {
-        param = JSON.parse(param)
-      }
-      const res = await launchFunction(this.func.name, param, true)
-      this.invokeResult = res
+      this.$notify({
+        type: 'success',
+        title: '操作成功',
+        message: '删除成功！'
+      })
+
+      this.list.splice(index, 1)
     },
-    validate() {
-      let error = null
-      let value
+    // 查看详情
+    async handleShowDetail(row) {
+      this.$router.push(`function/${row._id}`)
+    },
+    // 导出数据
+    handleDownload() {
+      this.downloadLoading = true
 
-      if (value === '') {
-        error = '函数值不可为空'
-      }
+      // TODO export & download
 
-      if (error) {
-        this.$message(error)
-        return error
-      }
-      return null
+      setTimeout(() => {
+        this.downloadLoading = false
+      }, 1000)
     }
   }
 }
 </script>
-
-<style lang="scss" scoped>
-.editor-container {
-  position: relative;
-  height: 100%;
-  margin-top: 10px;
-  width: 50%;
-}
-
-.invoke-panel {
-  padding-left: 20px;
-  padding-top: 10px;
-  width: 50%;
-  .title {
-    font-weight: bold;
-    span {
-      font-weight: normal;
-      color: gray;
-    }
-  }
-  .editor {
-    margin-top: 10px;
-    border: 1px dashed gray;
-    margin-left: 2px;
-    width: 80%;
-  }
-  .invoke-result {
-    margin-top: 20px;
-    .logs {
-      margin-top: 10px;
-      padding: 10px;
-      padding-left: 20px;
-      background: rgba(233, 243, 221, 0.472);
-      border-radius: 10px;
-      overflow-x: auto;
-    }
-    .result {
-      margin-top: 10px;
-      padding: 16px;
-      background: rgba(233, 243, 221, 0.472);
-      border-radius: 10px;
-    }
-  }
-}
-</style>
-
