@@ -119,7 +119,7 @@ export default {
   },
   async created() {
     await this.getFunction()
-    this.$route.meta.title = `${this.$route.meta.title}: ${this.func.name}`
+    // this.$route.meta.title = `调试云函数: ${this.func.name}`
   },
   methods: {
     /**
