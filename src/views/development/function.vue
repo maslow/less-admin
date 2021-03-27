@@ -119,8 +119,7 @@ export default {
   },
   async created() {
     await this.getFunction()
-    this.$route.meta.title = `调试云函数: ${this.func.name}`
-    console.log(this.$route.meta.title)
+    this.setTagViewTitle()
   },
   methods: {
     /**
@@ -149,7 +148,7 @@ export default {
     /**
      * 保存函数代码
      */
-    async updateFunc() {
+    async updateFunc(showTip = true) {
       if (this.loading) {
         return
       }
@@ -174,16 +173,21 @@ export default {
         return
       }
 
-      this.$notify({
-        type: 'success',
-        title: '保存',
-        message: '保存云函数成功!'
-      })
+      if (showTip) {
+        this.$notify({
+          type: 'success',
+          title: '保存',
+          message: '保存云函数成功!'
+        })
+      }
 
       this.loading = false
     },
+    /**
+     * 运行函数代码
+     */
     async launch() {
-      await this.updateFunc()
+      await this.updateFunc(false)
       if (this.loading) {
         return
       }
@@ -194,6 +198,12 @@ export default {
       }
       const res = await launchFunction(this.func.name, param, true)
       this.invokeResult = res
+    },
+    setTagViewTitle() {
+      const label = this.func.label
+      const title = this.$route.meta.title
+      const route = Object.assign({}, this.$route, { title: `${title}: ${label}` })
+      this.$store.dispatch('tagsView/updateVisitedView', route)
     },
     validate() {
       let error = null

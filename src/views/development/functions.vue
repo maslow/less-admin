@@ -387,7 +387,7 @@ export default {
     },
     // 查看详情
     async handleShowDetail(row) {
-      this.$router.push(`function/${row._id}`)
+      this.$router.push(`functions/${row._id}`)
     },
     // 导出数据
     handleDownload() {

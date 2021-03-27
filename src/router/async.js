@@ -82,7 +82,7 @@ export const asyncRoutes = [
         }
       },
       {
-        path: 'function/:id',
+        path: 'functions/:id',
         component: () => import('@/views/development/function'),
         name: 'FunctionEdit',
         hidden: true,
