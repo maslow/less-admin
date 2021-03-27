@@ -119,7 +119,8 @@ export default {
   },
   async created() {
     await this.getFunction()
-    // this.$route.meta.title = `调试云函数: ${this.func.name}`
+    this.$route.meta.title = `调试云函数: ${this.func.name}`
+    console.log(this.$route.meta.title)
   },
   methods: {
     /**
@@ -128,7 +129,8 @@ export default {
     async getFunction() {
       const func_id = this.$route.params.id
       this.loading = true
-      const r = await db.collection('functions')
+      const r = await db
+        .collection('functions')
         .where({ _id: func_id })
         .getOne()
 

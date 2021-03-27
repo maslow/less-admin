@@ -200,7 +200,7 @@ const formRules = {
 }
 
 export default {
-  name: 'ProperCaseName',
+  name: 'FunctionListPage',
   components: { Pagination },
   directives: { waves },
   filters: {
