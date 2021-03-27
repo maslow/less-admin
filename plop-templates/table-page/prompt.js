@@ -1,55 +1,36 @@
 const { notEmpty } = require('../utils.js')
+const fs = require('fs-extra')
+const _ = require('lodash')
+const path = require('path')
+const { cwd } = require('process')
 
 module.exports = {
   description: 'generate a view',
-  prompts: [{
-    type: 'input',
-    name: 'name',
-    message: 'view name please',
-    validate: notEmpty('name')
-  },
-  {
-    type: 'checkbox',
-    name: 'blocks',
-    message: 'Blocks:',
-    choices: [{
-      name: '<template>',
-      value: 'template',
-      checked: true
-    },
+  prompts: [
     {
-      name: '<script>',
-      value: 'script',
-      checked: true
-    },
-    {
-      name: 'style',
-      value: 'style',
-      checked: true
+      type: 'input',
+      name: 'name',
+      message: 'collection name please',
+      validate: notEmpty('name')
     }
-    ],
-    validate(value) {
-      if (value.indexOf('script') === -1 && value.indexOf('template') === -1) {
-        return 'View require at least a <script> or <template> tag.'
-      }
-      return true
-    }
-  }
   ],
   actions: data => {
-    const name = '{{name}}'
-    const actions = [{
-      type: 'add',
-      path: `src/views/${name}/index.vue`,
-      templateFile: 'plop-templates/view/index.hbs',
-      data: {
-        name: name,
-        template: data.blocks.includes('template'),
-        script: data.blocks.includes('script'),
-        style: data.blocks.includes('style')
-      }
-    }]
+    const name = data.name
+    const pageName = _.chain(name).camelCase().capitalize().value()
 
-    return actions
+    const tmpPath = path.join(__dirname, 'index.ejs')
+    const templateStr = fs.readFileSync(tmpPath, 'utf8')
+
+    _.templateSettings.interpolate = /<%=([\s\S]+?)%>/g
+    const compiledFunc = _.template(templateStr)
+
+    const result = compiledFunc({ pageName, collection: name })
+
+    const destPath = path.join(cwd(), `src/views/${name}`)
+    console.log(destPath)
+    fs.ensureDirSync(destPath)
+
+    fs.writeFileSync(path.join(destPath, 'index.vue'), result, 'utf8')
+    return []
   }
 }
