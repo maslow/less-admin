@@ -9,21 +9,11 @@
         class="filter-item"
         @keyup.enter.native="handleFilter"
       />
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
+      <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         搜索
       </el-button>
-      <el-button
-        v-waves
-        :loading="downloadLoading"
-        class="filter-item"
-        type="primary"
-        icon="el-icon-download"
-        @click="handleDownload"
-      >
-        导出
-      </el-button>
-      <el-button v-permission="'function.create'" v-waves class="filter-item" type="primary" icon="el-icon-search" @click="showCreateForm">
-        新建函数
+      <el-button v-permission="'permission.create'" class="filter-item" type="primary" icon="el-icon-search" @click="showCreateForm">
+        新建
       </el-button>
     </div>
 
@@ -37,29 +27,23 @@
       highlight-current-row
       style="width: 100%;"
     >
-      <el-table-column
-        label="ID"
-        prop="id"
-        sortable="custom"
-        align="center"
-        width="240"
-      >
+      <el-table-column label="ID" prop="id" align="center" width="240">
         <template slot-scope="{row}">
           <span>{{ row._id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="函数名" width="150px">
+      <el-table-column label="标识" width="150px">
         <template slot-scope="{row}">
           <span>{{ row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="名称" min-width="150px">
+      <el-table-column label="标题" min-width="150px">
         <template slot-scope="{row}">
           <span class="link-type" @click="showUpdateForm(row)">{{ row.label }}</span>
           <el-tag v-for="tag in row.tags" :key="tag">{{ tag }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="函数说明" align="center">
+      <el-table-column label="说明" align="center">
         <template slot-scope="{row}">
           <span v-if="row.description">{{ row.description }}</span>
           <span v-else>-</span>
@@ -86,16 +70,10 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="340" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <el-button v-permission="'function.debug'" type="success" size="mini" @click="handleShowDetail(row)">
-            调试
-          </el-button>
-          <el-button v-permission="'function.debug'" size="mini" @click="handleShowLogs(row)">
-            日志
-          </el-button>
-          <el-button v-permission="'function.edit'" type="primary" size="mini" @click="showUpdateForm(row)">
+          <el-button v-permission="'permission.edit'" type="primary" size="mini" @click="showUpdateForm(row)">
             编辑
           </el-button>
-          <el-button v-if="row.status!='deleted'" v-permission="'function.delete'" size="mini" type="danger" @click="handleDelete(row,$index)">
+          <el-button v-if="row.status!='deleted'" v-permission="'permission.delete'" size="mini" type="danger" @click="handleDelete(row,$index)">
             删除
           </el-button>
         </template>
@@ -121,19 +99,14 @@
         label-width="70px"
         style="width: 400px; margin-left:50px;"
       >
-        <el-form-item label="显示名称" prop="label">
-          <el-input v-model="form.label" placeholder="函数显示名，可为中文" />
+        <el-form-item label="标题" prop="label">
+          <el-input v-model="form.label" placeholder="显示标题" />
         </el-form-item>
-        <el-form-item label="函数名" prop="name">
-          <el-input v-model="form.name" placeholder="函数的唯一标识，如 get-user" />
+        <el-form-item label="标识" prop="name">
+          <el-input v-model="form.name" placeholder="唯一标识" />
         </el-form-item>
-        <el-form-item label="函数描述">
-          <el-input
-            v-model="form.description"
-            :autosize="{ minRows: 3, maxRows: 6}"
-            type="textarea"
-            placeholder="函数描述"
-          />
+        <el-form-item label="描述">
+          <el-input v-model="form.description" :autosize="{ minRows: 3, maxRows: 6}" type="textarea" placeholder="描述" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -149,35 +122,10 @@
 </template>
 
 <script>
-import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 import { db } from '@/api/cloud'
 
-const defaultCode = `
-exports.main = async function (ctx) {
-  // body, query 为请求参数, auth 是授权对象
-  const { auth, body, query } = ctx
-
-  // 数据库操作
-  const db = less.database()
-  const db_res = await db.collection('roles').get()
-  console.log(db_res)
-
-  // 文件操作
-  const fs = less.storage('public')
-  const data = await fs.readFile("your_filename")
-
-  // 网络操作
-  const res = await less.fetch("https://www.baidu.com")
-  console.log(res.data)
-
-  return {
-    fetch: res.data,
-    data: db_res.data
-  }
-}
-`
-
+// @TODO
 // 默认化创建表单的值
 function getDefaultFormValue() {
   return {
@@ -187,25 +135,26 @@ function getDefaultFormValue() {
     description: '',
     status: 0,
     tags: [],
-    version: 0,
     created_at: Date.now(),
-    updated_at: Date.now(),
-    code: defaultCode
+    updated_at: Date.now()
   }
 }
 
+// @TODO
+// 表单验证规则
 const formRules = {
-  name: [{ required: true, message: '函数名不可为空', trigger: 'blur' }],
-  label: [{ required: true, message: '函数显示名称不可为空', trigger: 'blur' }]
+  name: [{ required: true, message: '标识不可为空', trigger: 'blur' }],
+  label: [{ required: true, message: '标题不可为空', trigger: 'blur' }]
 }
 
 export default {
-  name: 'FunctionListPage',
+  name: 'PermissionsListPage',
   components: { Pagination },
-  directives: { waves },
   filters: {
     statusFilter(status) {
       status = status ?? 0
+      // @TODO
+      // 状态映射表
       const statusMap = {
         0: 'published'
       }
@@ -223,7 +172,6 @@ export default {
         limit: 20,
         keyword: undefined
       },
-      showReviewer: false,
       form: getDefaultFormValue(),
       dialogFormVisible: false,
       dialogStatus: '',
@@ -240,14 +188,14 @@ export default {
   },
   methods: {
     /**
-     * 获取数据列表
-     */
+       * 获取数据列表
+       */
     async getList() {
       this.listLoading = true
 
       // 拼装查询条件 by this.listQuery
       const { limit, page, keyword } = this.listQuery
-      const query = { }
+      const query = {}
       if (keyword) {
         query['$or'] = [
           { name: db.RegExp({ regexp: `.*${keyword}.*` }) },
@@ -257,7 +205,7 @@ export default {
       }
 
       // 执行数据查询
-      const res = await db.collection('functions')
+      const res = await db.collection('permissions')
         .where(query)
         .limit(limit)
         .skip((page - 1) * limit)
@@ -267,7 +215,7 @@ export default {
       this.list = res.data
 
       // 获取数据总数
-      const { total } = await db.collection('functions')
+      const { total } = await db.collection('permissions')
         .where(query)
         .limit(limit)
         .skip((page - 1) * limit)
@@ -297,7 +245,7 @@ export default {
         if (!valid) { return }
 
         // 执行创建请求
-        const r = await db.collection('functions')
+        const r = await db.collection('permissions')
           .add(this.form)
 
         if (!r.id) {
@@ -333,15 +281,19 @@ export default {
       this.$refs['dataForm'].validate(async(valid) => {
         if (!valid) { return }
 
-        // 执行创建请求
-        const r = await db.collection('functions')
+        // @TODO
+        // 构建更新数据对象
+        const data = {
+          name: this.form.name,
+          label: this.form.label,
+          description: this.form.description,
+          updated_at: Date.now()
+        }
+
+        // 执行更新请求
+        const r = await db.collection('permissions')
           .where({ _id: this.form._id })
-          .update({
-            name: this.form.name,
-            label: this.form.label,
-            description: this.form.description,
-            updated_at: Date.now()
-          })
+          .update(data)
 
         if (!r.ok) {
           this.$notify({
@@ -367,7 +319,7 @@ export default {
       await this.$confirm('确认要删除此数据？', '删除确认')
 
       // 执行删除请求
-      const r = await db.collection('functions')
+      const r = await db.collection('permissions')
         .where({ _id: row._id })
         .remove()
 
@@ -390,11 +342,9 @@ export default {
     },
     // 查看详情
     async handleShowDetail(row) {
-      this.$router.push(`functions/${row._id}`)
-    },
-    // 查看日志详情
-    async handleShowLogs(row) {
-      this.$router.push(`function-logs/${row._id}`)
+      // @TODO
+      // 跳转到详情页
+      // this.$router.push(`{{ name }}/${row._id}`)
     },
     // 导出数据
     handleDownload() {

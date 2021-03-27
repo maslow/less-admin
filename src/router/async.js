@@ -29,7 +29,7 @@ export const asyncRoutes = [
       },
       {
         path: 'permission',
-        component: () => import('@/views/system/permission'),
+        component: () => import('@/views/permissions/index'),
         name: 'PermissionManagement',
         meta: {
           title: '权限',
@@ -88,6 +88,29 @@ export const asyncRoutes = [
         hidden: true,
         meta: {
           title: '调试云函数',
+          icon: 'lock',
+          noCache: true,
+          permissions: ['function.read', 'function.edit', 'function.publish', 'functino.create', 'function.debug']
+        }
+      },
+      {
+        path: 'function-logs',
+        component: () => import('@/views/development/function_logs'),
+        name: 'AllFunctionLogs',
+        meta: {
+          title: '云函数日志',
+          icon: 'lock',
+          noCache: true,
+          permissions: ['function.read', 'function.edit', 'function.publish', 'functino.create', 'function.debug']
+        }
+      },
+      {
+        path: 'function-logs/:id',
+        component: () => import('@/views/development/function_logs'),
+        name: 'FunctionLogs',
+        hidden: true,
+        meta: {
+          title: '云函数日志',
           icon: 'lock',
           noCache: true,
           permissions: ['function.read', 'function.edit', 'function.publish', 'functino.create', 'function.debug']
