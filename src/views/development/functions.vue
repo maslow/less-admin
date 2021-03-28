@@ -171,9 +171,17 @@ exports.main = async function (ctx) {
   const res = await less.fetch("https://www.baidu.com")
   console.log(res.data)
 
+  // MD5 计算
+  const md5 = less.crypto.createHash('md5')
+  	.update('kissme')
+  	.digest('hex')
+  
+  console.log({md5})
+
   return {
-    fetch: res.data,
-    data: db_res.data
+    md5,
+    data: db_res.data,
+    fetch: res.data
   }
 }
 `

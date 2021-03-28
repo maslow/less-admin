@@ -9,12 +9,13 @@ import CodeMirror from 'codemirror'
 import 'codemirror/addon/lint/lint.css'
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/theme/rubyblue.css'
-// require('script-loader!jsonlint')
 import 'codemirror/mode/javascript/javascript'
 import 'codemirror/addon/lint/lint'
-// import 'codemirror/addon/lint/javascript-lint'
-import 'codemirror/addon/hint/show-hint'
-import 'codemirror/addon/hint/javascript-hint'
+import 'codemirror/addon/hint/show-hint.js'
+import 'codemirror/addon/hint/show-hint.css'
+// import 'codemirror/addon/hint/javascript-hint'
+import './jsHint'
+import $ from 'lodash'
 
 export default {
   name: 'JsEditor',
@@ -43,17 +44,38 @@ export default {
       fontSize: 24,
       autocorrect: true,
       spellcheck: true,
+      extraKeys: { 'Tab': 'autocomplete' },
       hintOptions: {
+        // hint: javascriptHint,
+        globalScope: {
+          ctx: {
+            auth: { uid: String },
+            body: Object,
+            query: Object
+          },
+          db: { 'collection()': Function },
+          less: {
+            'fetch()': {},
+            storage: {},
+            'database()': Function,
+            Buffer: {},
+            assert: {},
+            crypto: {},
+            path: {},
+            qs: {}
+          }
+        },
         completeSingle: false
       }
 
-      // extraKeys: { 'Tab': 'autocomplete' }
     })
 
+    const showHint = $.throttle(this.jsEditor.showHint, 1000)
     this.jsEditor.setValue(this.value)
     this.jsEditor.on('change', cm => {
       this.$emit('changed', cm.getValue())
       this.$emit('input', cm.getValue())
+      showHint.call(this.jsEditor)
     })
   },
   methods: {
