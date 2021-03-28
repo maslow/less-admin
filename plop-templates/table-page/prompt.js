@@ -24,7 +24,7 @@ module.exports = {
     _.templateSettings.interpolate = /<%=([\s\S]+?)%>/g
     const compiledFunc = _.template(templateStr)
 
-    const result = compiledFunc({ pageName, collection: name })
+    const result = compiledFunc({ pageName, collection: name, name: name })
 
     const destPath = path.join(cwd(), `src/views/${name}`)
     console.log(destPath)
