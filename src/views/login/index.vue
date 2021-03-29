@@ -67,10 +67,10 @@
 
       <div style="position:relative">
         <div class="tips">
-          <span>Username : less-admin</span>
+          <span>Username : less</span>
         </div>
         <div class="tips">
-          <span>Password : less-framework</span>
+          <span>Password : less123</span>
         </div>
 
         <el-button
@@ -110,8 +110,8 @@ export default {
       }
     }
     const validatePassword = (rule, value, callback) => {
-      if (value.length < 6) {
-        callback(new Error('The password can not be less than 6 digits'))
+      if (value.length < 4) {
+        callback(new Error('The password can not be less than 4 digits'))
       } else {
         callback()
       }
