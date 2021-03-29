@@ -1,8 +1,5 @@
 import Layout from '@/layout'
 
-/* Router Modules */
-import componentsRouter from './modules/components'
-
 /**
  * asyncRoutes
  * the routes that need to be dynamically loaded based on user roles
@@ -118,18 +115,6 @@ export const asyncRoutes = [
       }
     ]
   },
-  componentsRouter,
-  {
-    path: 'external-link',
-    component: Layout,
-    children: [
-      {
-        path: 'https://www.zhuo-zhuo.com',
-        meta: { title: '灼灼信息', icon: 'link' }
-      }
-    ]
-  },
-
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]
