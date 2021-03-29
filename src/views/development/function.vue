@@ -71,8 +71,7 @@
 <script>
 import jsEditor from '@/components/JsEditor'
 import jsonEditor from '@/components/JsonEditor'
-import { db } from '@/api/cloud'
-import { launchFunction } from '@/api/func'
+import { db, cloud } from '@/api/cloud'
 
 const defaultParamValue = {
   code: 'hi'
@@ -196,7 +195,8 @@ export default {
       if (typeof param === 'string') {
         param = JSON.parse(param)
       }
-      const res = await launchFunction(this.func.name, param, true)
+
+      const res = await cloud.invokeFunctin(this.func.name, param, true)
       this.invokeResult = res
     },
     setTagViewTitle() {
