@@ -32,6 +32,7 @@
     "jszip": "3.2.1",
     "less-api-client": "^0.8.4",
     "lodash": "^4.17.21",
+    "monaco-editor": "^0.23.0",
     "normalize.css": "7.0.0",
     "nprogress": "0.2.0",
     "path-to-regexp": "2.4.0",
@@ -45,7 +46,7 @@
     "vue-splitpane": "1.0.4",
     "vuedraggable": "2.20.0",
     "vuex": "3.1.0",
-    "xlsx": "0.14.1"
+    "xlsx": "0.16.9"
   },
   "devDependencies": {
     "@commitlint/cli": "^12.0.1",
@@ -71,6 +72,7 @@
     "husky": "^5.2.0",
     "lint-staged": "8.1.5",
     "mockjs": "1.0.1-beta3",
+    "monaco-editor-webpack-plugin": "^3.0.1",
     "plop": "2.3.0",
     "runjs": "^4.4.2",
     "sass": "1.26.2",

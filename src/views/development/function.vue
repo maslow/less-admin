@@ -142,6 +142,7 @@ export default {
       }
 
       this.func = r.data
+      this.value = this.func.code
       this.loading = false
     },
     /**

@@ -1,21 +1,30 @@
 <template>
   <div class="json-editor">
-    <textarea ref="textarea" />
+    <div ref="jseditor" class="editor" />
   </div>
 </template>
 
 <script>
-import CodeMirror from 'codemirror'
-import 'codemirror/addon/lint/lint.css'
-import 'codemirror/lib/codemirror.css'
-import 'codemirror/theme/rubyblue.css'
-import 'codemirror/mode/javascript/javascript'
-import 'codemirror/addon/lint/lint'
-import 'codemirror/addon/hint/show-hint.js'
-import 'codemirror/addon/hint/show-hint.css'
-// import 'codemirror/addon/hint/javascript-hint'
-import './jsHint'
-import $ from 'lodash'
+import * as monaco from 'monaco-editor'
+import 'monaco-editor/esm/vs/basic-languages/javascript/javascript'
+// import $ from 'lodash'
+import { less_declare } from './types'
+
+// validation settings
+monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+  noSemanticValidation: true,
+  noSyntaxValidation: false
+})
+// compiler options
+monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
+  target: monaco.languages.typescript.ScriptTarget.ES6,
+  allowNonTsExtensions: true
+})
+
+// When resolving definitions and references, the editor will try to use created models.
+// Creating a model for the library allows "peek definition/references" commands to work with the library.
+monaco.languages.typescript.javascriptDefaults.addExtraLib(less_declare, 'less.d.ts')
+monaco.editor.createModel(less_declare, 'typescript', monaco.Uri.parse('less.d.ts'))
 
 export default {
   name: 'JsEditor',
@@ -35,47 +44,15 @@ export default {
     }
   },
   mounted() {
-    this.jsEditor = CodeMirror.fromTextArea(this.$refs.textarea, {
-      lineNumbers: true,
-      mode: 'javascript',
-      gutters: ['CodeMirror-lint-markers'],
-      theme: 'rubyblue',
-      lint: true,
-      fontSize: 24,
-      autocorrect: true,
-      spellcheck: true,
-      extraKeys: { 'Tab': 'autocomplete' },
-      hintOptions: {
-        // hint: javascriptHint,
-        globalScope: {
-          ctx: {
-            auth: { uid: String },
-            body: Object,
-            query: Object
-          },
-          db: { 'collection()': Function },
-          less: {
-            'fetch()': {},
-            storage: {},
-            'database()': Function,
-            Buffer: {},
-            assert: {},
-            crypto: {},
-            path: {},
-            qs: {}
-          }
-        },
-        completeSingle: false
-      }
+    this.jsEditor = monaco.editor.create(this.$refs.jseditor, {
+      value: '',
+      language: 'javascript',
 
-    })
-
-    const showHint = $.throttle(this.jsEditor.showHint, 1000)
-    this.jsEditor.setValue(this.value)
-    this.jsEditor.on('change', cm => {
-      this.$emit('changed', cm.getValue())
-      this.$emit('input', cm.getValue())
-      showHint.call(this.jsEditor)
+      lineNumbers: 'on',
+      roundedSelection: true,
+      scrollBeyondLastLine: false,
+      readOnly: false
+      // theme: 'vs-dark'
     })
   },
   methods: {
@@ -91,20 +68,9 @@ export default {
   height: 100%;
   position: relative;
 
-  ::v-deep {
-    .CodeMirror {
-      height: auto;
-      min-height: 800px;
-      font-size: 16px;
-    }
-
-    .CodeMirror-scroll {
-      min-height: 800px;
-    }
-
-    .cm-s-rubyblue span.cm-string {
-      color: #F08047;
-    }
-  }
+.editor {
+  width: 100%;
+  min-height: 600px;
+}
 }
 </style>
