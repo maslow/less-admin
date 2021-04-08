@@ -84,7 +84,7 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="340" class-name="small-padding fixed-width">
+      <el-table-column fixed="right" label="操作" align="center" width="340" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
           <el-button v-permission="'function.debug'" type="success" size="mini" @click="handleShowDetail(row)">
             调试
@@ -152,6 +152,7 @@
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 import { db } from '@/api/cloud'
+import XLSX from 'xlsx'
 
 const defaultCode = `
 exports.main = async function (ctx) {
@@ -408,11 +409,23 @@ export default {
     handleDownload() {
       this.downloadLoading = true
 
-      // TODO export & download
-
-      setTimeout(() => {
+      if (!this.list || !this.list.length) {
+        this.$message('函数列表暂无数据')
         this.downloadLoading = false
-      }, 1000)
+        return
+      }
+
+      const tableHeaders = Object.keys(this.list[0])
+
+      const tableData = this.list.map(li => Object.values(li))
+      tableData.unshift(tableHeaders)
+
+      const ws = XLSX.utils.aoa_to_sheet(tableData)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, '云函数')
+      XLSX.writeFile(wb, '云函数.xlsx')
+
+      this.downloadLoading = false
     }
   }
 }
