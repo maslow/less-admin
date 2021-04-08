@@ -628,4 +628,18 @@ interface LessInterface {
     lodash: typeof lodash;
 }
 declare const less: LessInterface;
+
+interface HandlerContext {
+  auth?: {
+    uid?: string
+  }
+  query?: any
+  body?: any,
+  requestId: string
+}
+
+interface ExportsStruct {
+  main: (ctx: HandlerContext) => any
+}
+declare const exports: ExportsStruct
 `
