@@ -25,7 +25,7 @@
     <el-button v-permission="'rule.delete'" type="info" size="mini" style="margin-left: 20px" :disabled="loading" @click="removeRule">删除</el-button>
 
     <div class="editor-container">
-      <json-editor ref="jsonEditor" v-model="value" :dark="true" />
+      <json-editor v-model="value" :dark="true" :height="600" />
     </div>
 
     <aside style="margin-top: 15px">

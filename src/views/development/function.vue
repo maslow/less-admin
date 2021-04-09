@@ -23,7 +23,7 @@
 
     <div style="display: flex;">
       <div class="editor-container">
-        <js-editor ref="jsEditor" v-model="value" />
+        <js-editor v-model="value" :height="800" />
       </div>
       <div class="invoke-panel">
         <div class="title">
@@ -39,9 +39,9 @@
         </div>
         <div class="editor">
           <json-editor
-            ref="jsonEditor"
             v-model="invokeParams"
-            :line-numbers="true"
+            :line-numbers="false"
+            :height="200"
           />
         </div>
         <div v-if="invokeResult" class="invoke-result">
@@ -70,7 +70,7 @@
 
 <script>
 import jsEditor from '@/components/JsEditor'
-import jsonEditor from '@/components/JsonEditor'
+import jsonEditor from '@/components/JsonEditor/param'
 import { db, cloud } from '@/api/cloud'
 
 const defaultParamValue = {

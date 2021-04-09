@@ -1,6 +1,6 @@
 <template>
   <div class="json-editor">
-    <div ref="jseditor" class="editor" />
+    <div ref="jseditor" class="editor" :style="{minHeight: `${minHeight}px`}" />
   </div>
 </template>
 
@@ -29,35 +29,49 @@ monaco.editor.createModel(less_declare, 'typescript', monaco.Uri.parse('less.d.t
 export default {
   name: 'JsEditor',
   /* eslint-disable vue/require-prop-types */
-  props: ['value'],
+  props: ['value', 'height'],
   data() {
     return {
-      jsEditor: false
+      editor: false
+    }
+  },
+  computed: {
+    minHeight() {
+      return this.height || 150
     }
   },
   watch: {
     value(value) {
-      const editorValue = this.jsEditor.getValue()
+      const editorValue = this.editor.getValue()
       if (value !== editorValue) {
-        this.jsEditor.setValue(this.value)
+        this.editor.setValue(this.value)
       }
     }
   },
   mounted() {
-    this.jsEditor = monaco.editor.create(this.$refs.jseditor, {
+    this.editor = monaco.editor.create(this.$refs.jseditor, {
       value: '',
       language: 'javascript',
-
       lineNumbers: 'on',
       roundedSelection: true,
       scrollBeyondLastLine: false,
-      readOnly: false
-      // theme: 'vs-dark'
+      theme: 'vs-dark',
+      readOnly: false,
+      formatOnType: true,
+      fontSize: 16,
+      linkedEditing: true,
+      cursorBlinking: 'expand',
+      smoothScrolling: true,
+      renderWhitespace: 'selection'
+    })
+
+    this.editor.onDidChangeModelContent(e => {
+      this.$emit('input', this.editor.getValue())
     })
   },
   methods: {
     getValue() {
-      return this.jsEditor.getValue()
+      return this.editor.getValue()
     }
   }
 }

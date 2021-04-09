@@ -6,14 +6,9 @@
 
 <script>
 import * as monaco from 'monaco-editor'
-import { rules_schemas } from './schemas'
-// configure the JSON language support with schemas and schema associations
-monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
-  validate: true,
-  schemas: rules_schemas
-})
+
 export default {
-  name: 'JsonEditor',
+  name: 'ParamJsonEditor',
   /* eslint-disable vue/require-prop-types */
   props: ['value', 'lineNumbers', 'mode', 'dark', 'height', 'fontsize'],
   data() {
