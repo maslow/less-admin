@@ -23,7 +23,7 @@
 
     <div style="display: flex;">
       <div class="editor-container">
-        <js-editor v-model="value" :height="800" />
+        <function-editor v-model="value" :height="800" />
       </div>
       <div class="invoke-panel">
         <div class="title">
@@ -69,8 +69,8 @@
 </template>
 
 <script>
-import jsEditor from '@/components/JsEditor'
-import jsonEditor from '@/components/JsonEditor/param'
+import FunctionEditor from './components/FunctionEditor'
+import jsonEditor from './components/JsonEditor/param'
 import { db, cloud } from '@/api/cloud'
 
 const defaultParamValue = {
@@ -78,7 +78,7 @@ const defaultParamValue = {
 }
 export default {
   name: 'FunctionEditorPage',
-  components: { jsEditor, jsonEditor },
+  components: { FunctionEditor, jsonEditor },
   data() {
     return {
       loading: false,

@@ -27,7 +27,7 @@ monaco.languages.typescript.javascriptDefaults.addExtraLib(less_declare, 'less.d
 monaco.editor.createModel(less_declare, 'typescript', monaco.Uri.parse('less.d.ts'))
 
 export default {
-  name: 'JsEditor',
+  name: 'FunctionEditor',
   /* eslint-disable vue/require-prop-types */
   props: ['value', 'height'],
   data() {

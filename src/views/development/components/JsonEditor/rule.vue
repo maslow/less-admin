@@ -13,7 +13,7 @@ monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
   schemas: rules_schemas
 })
 export default {
-  name: 'JsonEditor',
+  name: 'RuleJsonEditor',
   /* eslint-disable vue/require-prop-types */
   props: ['value', 'lineNumbers', 'mode', 'dark', 'height', 'fontsize'],
   data() {
