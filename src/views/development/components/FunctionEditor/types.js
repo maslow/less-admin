@@ -614,18 +614,10 @@ export const less_declare = `
 ${database_type}
 ${storage_type}
 ${fetch_type}
-
 interface LessInterface {
     fetch: AxiosStatic;
     storage(namespace: string): FileStorageInterface;
     database(): Db;
-
-    crypto: typeof crypto;
-    path: typeof path;
-    qs: typeof querystring;
-    url: typeof url;
-    Buffer: typeof Buffer;
-    lodash: typeof lodash;
 }
 declare const less: LessInterface;
 
@@ -642,4 +634,7 @@ interface ExportsStruct {
   main: (ctx: HandlerContext) => any
 }
 declare const exports: ExportsStruct
+
+declare type RequireFuncType = (module: 'crypto' | 'path' | 'querystring' | 'url' | 'lodash' | 'moment') => any;
+declare const require: RequireFuncType
 `

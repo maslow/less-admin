@@ -161,22 +161,14 @@ exports.main = async function (ctx) {
 
   // 数据库操作
   const db = less.database()
-  const db_res = await db.collection('roles').get()
+  const db_res = await db.collection('admins').get()
   console.log(db_res)
 
   // 网络操作
   const res = await less.fetch("https://www.v2ex.com/api/topics/hot.json")
-  console.log(res.data)
-
-  // MD5 计算
-  const md5 = less.crypto.createHash('md5')
-  	.update('kissme')
-  	.digest('hex')
-  
-  console.log({md5})
+  console.log(res.status)
 
   return {
-    md5,
     data: db_res.data,
     fetch: res.data
   }

@@ -9,6 +9,8 @@ import * as monaco from 'monaco-editor'
 import 'monaco-editor/esm/vs/basic-languages/javascript/javascript'
 // import $ from 'lodash'
 import { less_declare } from './types'
+import { path_declare } from './path'
+import { crypto_declare } from './crypto'
 
 // validation settings
 monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
@@ -21,10 +23,16 @@ monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
   allowNonTsExtensions: true
 })
 
+monaco.languages.typescript.javascriptDefaults.addExtraLib(crypto_declare, 'crypto.d.ts')
+monaco.editor.createModel(crypto_declare, 'typescript', monaco.Uri.parse('crypto.d.ts'))
+
+monaco.languages.typescript.javascriptDefaults.addExtraLib(path_declare, 'path.d.ts')
+monaco.editor.createModel(path_declare, 'typescript', monaco.Uri.parse('path.d.ts'))
+
 // When resolving definitions and references, the editor will try to use created models.
 // Creating a model for the library allows "peek definition/references" commands to work with the library.
-monaco.languages.typescript.javascriptDefaults.addExtraLib(less_declare, 'less.d.ts')
-monaco.editor.createModel(less_declare, 'typescript', monaco.Uri.parse('less.d.ts'))
+monaco.languages.typescript.javascriptDefaults.addExtraLib(less_declare, 'globals.d.ts')
+monaco.editor.createModel(less_declare, 'typescript', monaco.Uri.parse('globals.d.ts'))
 
 export default {
   name: 'FunctionEditor',
@@ -62,7 +70,8 @@ export default {
       linkedEditing: true,
       cursorBlinking: 'expand',
       smoothScrolling: true,
-      renderWhitespace: 'selection'
+      renderWhitespace: 'selection',
+      tabSize: 2
     })
 
     this.editor.onDidChangeModelContent(e => {
