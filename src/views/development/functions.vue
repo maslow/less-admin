@@ -164,12 +164,8 @@ exports.main = async function (ctx) {
   const db_res = await db.collection('roles').get()
   console.log(db_res)
 
-  // 文件操作
-  const fs = less.storage('public')
-  const data = await fs.readFile("your_filename")
-
   // 网络操作
-  const res = await less.fetch("https://www.baidu.com")
+  const res = await less.fetch("https://www.v2ex.com/api/topics/hot.json")
   console.log(res.data)
 
   // MD5 计算
