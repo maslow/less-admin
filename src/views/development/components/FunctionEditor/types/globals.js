@@ -635,6 +635,8 @@ interface ExportsStruct {
 }
 declare const exports: ExportsStruct
 
-declare type RequireFuncType = (module: 'crypto' | 'path' | 'querystring' | 'url' | 'lodash' | 'moment') => any;
-declare const require: RequireFuncType
+declare function main(ctx: HandlerContext): any;
+
+// declare type RequireFuncType = (module: 'crypto' | 'path' | 'querystring' | 'url' | 'lodash' | 'moment') => any;
+// declare const require: RequireFuncType
 `
