@@ -618,24 +618,26 @@ interface LessInterface {
     fetch: AxiosStatic;
     storage(namespace: string): FileStorageInterface;
     database(): Db;
+    invoke: InvokeFunctionType;
 }
 declare const less: LessInterface;
 
-interface HandlerContext {
+interface FunctionContext {
   auth?: {
     uid?: string
   }
   query?: any
   body?: any,
-  requestId: string
+  requestId?: string
 }
 
 interface ExportsStruct {
-  main: (ctx: HandlerContext) => any
+  main: (ctx: FunctionContext) => any
 }
 declare const exports: ExportsStruct
 
-declare function main(ctx: HandlerContext): any;
+declare function main(ctx: FunctionContext): any;
+type InvokeFunctionType = (name: string, param?: FunctionContext) => Promise<any>;
 
 // declare type RequireFuncType = (module: 'crypto' | 'path' | 'querystring' | 'url' | 'lodash' | 'moment') => any;
 // declare const require: RequireFuncType
