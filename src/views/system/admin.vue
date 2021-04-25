@@ -4,7 +4,7 @@
     <el-table :data="admins" style="width: 100%;margin-top:30px;" border>
       <el-table-column align="center" label="ID" width="220">
         <template slot-scope="scope">
-          {{ scope.row.uid }}
+          {{ scope.row._id }}
         </template>
       </el-table-column>
       <el-table-column align="center" label="用户名">
@@ -95,7 +95,7 @@ import * as user from '@/api/user'
 import { array2map, mergeMap2ArrayByKeyArray } from '../../utils/array'
 
 const defaultForm = {
-  uid: undefined,
+  _id: undefined,
   username: '',
   name: '',
   password: '',
@@ -145,7 +145,6 @@ export default {
       this.dialogType = 'edit'
       this.dialogVisible = true
       this.admin = { ...deepClone(scope.row), password: '' }
-      // this.admin.password = ''
     },
     /** 删除数据 */
     handleDelete({ $index, row }) {
@@ -157,7 +156,7 @@ export default {
         .then(async() => {
           const { ok } = await db
             .collection('admins')
-            .where({ uid: row.uid })
+            .where({ _id: row._id })
             .remove()
           if (!ok) return
           this.admins.splice($index, 1)
@@ -177,7 +176,7 @@ export default {
 
       if (isEdit) {
         const data = {
-          uid: this.admin.uid,
+          _id: this.admin._id,
           username: this.admin.username,
           name: this.admin.name,
           roles: this.admin.roles
