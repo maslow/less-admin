@@ -1,9 +1,11 @@
 {
-  "name": "less-admin",
+  "name": "go-chess-admin",
   "version": "0.1.0",
   "description": "A magical vue admin. An out-of-box UI solution for enterprise applications. Newest development stack of vue. Lots of awesome features",
   "author": "Maslow <wangfugen@126.com>",
   "scripts": {
+    "deploy:win": "scp -rv ./dist/  zhuo-dev:/home/go-chess/admin",
+    "deploy": "rsync -rvtP ./dist/  zhuo-dev:/home/go-chess/admin",
     "dev": "vue-cli-service serve",
     "lint": "eslint --ext .js,.vue src",
     "build:prod": "vue-cli-service build",

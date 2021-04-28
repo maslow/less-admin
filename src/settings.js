@@ -1,5 +1,5 @@
 module.exports = {
-  title: 'Less Admin',
+  title: 'Go Chess Admin',
 
   /**
    * @type {boolean} true | false
