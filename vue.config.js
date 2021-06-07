@@ -41,7 +41,8 @@ module.exports = {
     proxy: {
       // detail: https://cli.vuejs.org/config/#devserver-proxy
       [process.env.VUE_APP_BASE_API]: {
-        target: `https://api.vip-design.net/prod-api`,
+        // target: `https://api.vip-design.net/prod-api`,
+        target: 'http://localhost:8080/',
         changeOrigin: true,
         pathRewrite: {
           ['^' + process.env.VUE_APP_BASE_API]: ''
