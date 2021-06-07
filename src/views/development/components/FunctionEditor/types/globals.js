@@ -619,6 +619,7 @@ interface LessInterface {
     storage(namespace: string): FileStorageInterface;
     database(): Db;
     invoke: InvokeFunctionType;
+    emit: EmitFunctionType;
 }
 declare const less: LessInterface;
 
@@ -638,6 +639,7 @@ declare const exports: ExportsStruct
 
 declare function main(ctx: FunctionContext): any;
 type InvokeFunctionType = (name: string, param?: FunctionContext) => Promise<any>;
+type EmitFunctionType = (event: string, param: any) => void
 
 // declare type RequireFuncType = (module: 'crypto' | 'path' | 'querystring' | 'url' | 'lodash' | 'moment') => any;
 // declare const require: RequireFuncType
