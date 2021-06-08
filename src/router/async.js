@@ -75,7 +75,7 @@ export const asyncRoutes = [
           title: '云函数',
           icon: 'lock',
           noCache: true,
-          permissions: ['function.read', 'function.edit', 'function.publish', 'functino.create', 'function.debug']
+          permissions: ['function.read', 'function.edit', 'function.triggers', 'function.publish', 'function.create', 'function.debug']
         }
       },
       {
@@ -87,7 +87,7 @@ export const asyncRoutes = [
           title: '调试云函数',
           icon: 'lock',
           noCache: true,
-          permissions: ['function.read', 'function.edit', 'function.publish', 'functino.create', 'function.debug']
+          permissions: ['function.read', 'function.edit', 'function.publish', 'function.create', 'function.debug']
         }
       },
       {
@@ -98,7 +98,7 @@ export const asyncRoutes = [
           title: '云函数日志',
           icon: 'lock',
           noCache: true,
-          permissions: ['function.read', 'function.edit', 'function.publish', 'functino.create', 'function.debug']
+          permissions: ['function.read', 'function.edit', 'function.publish', 'function.create', 'function.debug']
         }
       },
       {
@@ -110,7 +110,19 @@ export const asyncRoutes = [
           title: '云函数日志',
           icon: 'lock',
           noCache: true,
-          permissions: ['function.read', 'function.edit', 'function.publish', 'functino.create', 'function.debug']
+          permissions: ['function.read', 'function.edit', 'function.publish', 'function.create', 'function.debug']
+        }
+      },
+      {
+        path: 'triggers/:funcId',
+        component: () => import('@/views/development/triggers'),
+        name: 'TriggerManagement',
+        hidden: true,
+        meta: {
+          title: '云函数触发器',
+          icon: 'lock',
+          noCache: true,
+          permissions: ['trigger.read', 'trigger.edit', 'trigger.create', 'trigger.debug']
         }
       }
     ]

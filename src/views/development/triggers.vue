@@ -1,5 +1,9 @@
 <template>
   <div class="app-container">
+    <div v-if="func" class="func-title">
+      <h3>触发函数: {{ func.label }}</h3>
+      函数调用名：<el-tag type="success">{{ func.name }}</el-tag>
+    </div>
     <!-- 数据检索区 -->
     <div class="filter-container">
       <el-input
@@ -12,18 +16,8 @@
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         搜索
       </el-button>
-      <el-button
-        v-waves
-        :loading="downloadLoading"
-        class="filter-item"
-        type="primary"
-        icon="el-icon-download"
-        @click="handleDownload"
-      >
-        导出
-      </el-button>
-      <el-button v-permission="'function.create'" v-waves class="filter-item" type="primary" icon="el-icon-search" @click="showCreateForm">
-        新建函数
+      <el-button v-permission="'trigger.create'" v-waves class="filter-item" type="primary" icon="el-icon-search" @click="showCreateForm">
+        新建触发器
       </el-button>
     </div>
 
@@ -48,18 +42,23 @@
           <span>{{ row._id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="函数名" width="150px">
-        <template slot-scope="{row}">
-          <span>{{ row.name }}</span>
-        </template>
-      </el-table-column>
       <el-table-column label="名称" min-width="150px">
         <template slot-scope="{row}">
-          <span class="link-type" @click="showUpdateForm(row)">{{ row.label }}</span>
-          <el-tag v-for="tag in row.tags" :key="tag">{{ tag }}</el-tag>
+          <span class="link-type" @click="showUpdateForm(row)">{{ row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="函数说明" align="center">
+      <el-table-column label="类型" align="center">
+        <template slot-scope="{row}">
+          <span v-if="row.type">{{ row.type }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="间隔" align="center">
+        <template slot-scope="{row}">
+          <span v-if="row.duration">{{ row.duration }}</span>
+          <span v-else>-</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="描述" align="center">
         <template slot-scope="{row}">
           <span v-if="row.description">{{ row.description }}</span>
           <span v-else>-</span>
@@ -84,21 +83,12 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column fixed="right" label="操作" align="center" width="390" class-name="small-padding fixed-width">
+      <el-table-column fixed="right" label="操作" align="center" width="340" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <el-button v-permission="'function.debug'" type="success" size="mini" @click="handleShowDetail(row)">
-            调试
-          </el-button>
-          <el-button v-permission="'function.debug'" size="mini" @click="handleShowLogs(row)">
-            日志
-          </el-button>
-          <el-button v-permission="'function.edit'" size="mini" @click="handleTriggers(row)">
-            触发器
-          </el-button>
-          <el-button v-permission="'function.edit'" type="primary" size="mini" @click="showUpdateForm(row)">
+          <el-button v-permission="'trigger.edit'" type="primary" size="mini" @click="showUpdateForm(row)">
             编辑
           </el-button>
-          <el-button v-if="row.status!='deleted'" v-permission="'function.delete'" size="mini" type="danger" @click="handleDelete(row,$index)">
+          <el-button v-if="row.status!='deleted'" v-permission="'trigger.delete'" size="mini" type="danger" @click="handleDelete(row,$index)">
             删除
           </el-button>
         </template>
@@ -124,18 +114,24 @@
         label-width="70px"
         style="width: 400px; margin-left:50px;"
       >
-        <el-form-item label="显示名称" prop="label">
-          <el-input v-model="form.label" placeholder="函数显示名，可为中文" />
+        <el-form-item label="名称" prop="name">
+          <el-input v-model="form.name" placeholder="触发器名称" />
         </el-form-item>
-        <el-form-item label="函数名" prop="name">
-          <el-input v-model="form.name" placeholder="函数的唯一标识，如 get-user" />
+        <el-form-item label="类型" prop="type">
+          <el-input v-model="form.type" placeholder="触发器类型" />
         </el-form-item>
-        <el-form-item label="函数描述">
+        <el-form-item label="事件" prop="event">
+          <el-input v-model="form.event" placeholder="触发器事件" />
+        </el-form-item>
+        <el-form-item label="间隔" prop="duration">
+          <el-input v-model="form.duration" placeholder="触发器间隔" />
+        </el-form-item>
+        <el-form-item label="触发器描述">
           <el-input
-            v-model="form.description"
+            v-model="form.desc"
             :autosize="{ minRows: 3, maxRows: 6}"
             type="textarea"
-            placeholder="函数描述"
+            placeholder="触发器描述"
           />
         </el-form-item>
       </el-form>
@@ -155,65 +151,47 @@
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 import { db } from '@/api/cloud'
-import XLSX from 'xlsx'
-
-const defaultCode = `
-exports.main = async function (ctx) {
-  // body, query 为请求参数, auth 是授权对象
-  const { auth, body, query } = ctx
-
-  // 数据库操作
-  const db = less.database()
-  const db_res = await db.collection('admins').get()
-  console.log(db_res)
-
-  // 网络操作
-  const res = await less.fetch("https://www.v2ex.com/api/topics/hot.json")
-  console.log(res.status)
-
-  return {
-    data: db_res.data,
-    fetch: res.data
-  }
-}
-`
 
 // 默认化创建表单的值
 function getDefaultFormValue() {
   return {
-    _id: undefined,
+    _id: null,
     name: '',
-    label: '',
-    description: '',
-    status: 0,
-    tags: [],
-    version: 0,
+    type: '',
+    event: '/db/functions#add',
+    duration: 5,
+    desc: '',
+    status: 1,
     created_at: Date.now(),
-    updated_at: Date.now(),
-    code: defaultCode
+    updated_at: Date.now()
   }
 }
 
 const formRules = {
-  name: [{ required: true, message: '函数名不可为空', trigger: 'blur' }],
-  label: [{ required: true, message: '函数显示名称不可为空', trigger: 'blur' }]
+  name: [{ required: true, message: '触发器名不可为空', trigger: 'blur' }],
+  type: [{ required: true, message: '请选择触发器类型', trigger: 'blur' }]
 }
 
 export default {
-  name: 'FunctionListPage',
+  name: 'TriggerListPage',
   components: { Pagination },
   directives: { waves },
   filters: {
     statusFilter(status) {
       status = status ?? 0
       const statusMap = {
-        0: 'published'
+        1: 'applied'
       }
       return statusMap[status]
     }
   },
   data() {
     return {
+      loading: false,
+      value: '',
+      func: null,
+      funcId: '',
+
       tableKey: 0,
       list: null,
       total: 0,
@@ -236,9 +214,34 @@ export default {
     }
   },
   created() {
+    this.funcId = this.$route.params.funcId
+    this.getFunction()
     this.getList()
   },
   methods: {
+    /**
+     * 获取函数数据
+     */
+    async getFunction() {
+      const func_id = this.funcId
+      this.loading = true
+      const r = await db
+        .collection('functions')
+        .where({ _id: func_id })
+        .getOne()
+
+      if (!r.ok || !r.data) {
+        this.$notify({
+          type: 'error',
+          title: '错误',
+          message: '加载函数失败：' + r.error
+        })
+        return
+      }
+
+      this.func = r.data
+      this.loading = false
+    },
     /**
      * 获取数据列表
      */
@@ -251,13 +254,12 @@ export default {
       if (keyword) {
         query['$or'] = [
           { name: db.RegExp({ regexp: `.*${keyword}.*` }) },
-          { label: db.RegExp({ regexp: `.*${keyword}.*` }) },
-          { description: db.RegExp({ regexp: `.*${keyword}.*` }) }
+          { desc: db.RegExp({ regexp: `.*${keyword}.*` }) }
         ]
       }
 
       // 执行数据查询
-      const res = await db.collection('functions')
+      const res = await db.collection('triggers')
         .where(query)
         .limit(limit)
         .skip((page - 1) * limit)
@@ -267,7 +269,7 @@ export default {
       this.list = res.data
 
       // 获取数据总数
-      const { total } = await db.collection('functions')
+      const { total } = await db.collection('triggers')
         .where(query)
         .limit(limit)
         .skip((page - 1) * limit)
@@ -296,9 +298,12 @@ export default {
       this.$refs['dataForm'].validate(async(valid) => {
         if (!valid) { return }
 
+        const params = { ...this.form, func_id: this.funcId }
+        console.log(params)
+
         // 执行创建请求
-        const r = await db.collection('functions')
-          .add(this.form)
+        const r = await db.collection('triggers')
+          .add(params)
 
         if (!r.id) {
           this.$notify({
@@ -334,12 +339,14 @@ export default {
         if (!valid) { return }
 
         // 执行创建请求
-        const r = await db.collection('functions')
+        const r = await db.collection('triggers')
           .where({ _id: this.form._id })
           .update({
             name: this.form.name,
-            label: this.form.label,
-            description: this.form.description,
+            type: this.form.type,
+            event: this.form.event,
+            duration: this.form.duration,
+            desc: this.form.desc,
             updated_at: Date.now()
           })
 
@@ -367,7 +374,7 @@ export default {
       await this.$confirm('确认要删除此数据？', '删除确认')
 
       // 执行删除请求
-      const r = await db.collection('functions')
+      const r = await db.collection('triggers')
         .where({ _id: row._id })
         .remove()
 
@@ -387,41 +394,13 @@ export default {
       })
 
       this.list.splice(index, 1)
-    },
-    // 查看详情
-    async handleShowDetail(row) {
-      this.$router.push(`functions/${row._id}`)
-    },
-    // 查看日志详情
-    async handleShowLogs(row) {
-      this.$router.push(`function-logs/${row._id}`)
-    },
-    // 设置触发器
-    async handleTriggers(row) {
-      this.$router.push(`triggers/${row._id}`)
-    },
-    // 导出数据
-    handleDownload() {
-      this.downloadLoading = true
-
-      if (!this.list || !this.list.length) {
-        this.$message('函数列表暂无数据')
-        this.downloadLoading = false
-        return
-      }
-
-      const tableHeaders = Object.keys(this.list[0])
-
-      const tableData = this.list.map(li => Object.values(li))
-      tableData.unshift(tableHeaders)
-
-      const ws = XLSX.utils.aoa_to_sheet(tableData)
-      const wb = XLSX.utils.book_new()
-      XLSX.utils.book_append_sheet(wb, ws, '云函数')
-      XLSX.writeFile(wb, '云函数.xlsx')
-
-      this.downloadLoading = false
     }
   }
 }
 </script>
+<style lang="scss">
+.func-title {
+  margin-bottom: 20px;
+}
+
+</style>
