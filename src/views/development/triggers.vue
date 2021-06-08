@@ -79,9 +79,8 @@
       </el-table-column>
       <el-table-column label="状态" class-name="status-col" width="120">
         <template slot-scope="{row}">
-          <el-tag type="success">
-            {{ row.status | statusFilter }}
-          </el-tag>
+          <el-tag v-if="row.status === 0" type="danger">停用</el-tag>
+          <el-tag v-if="row.status === 1" type="success">启用</el-tag>
         </template>
       </el-table-column>
       <el-table-column fixed="right" label="操作" align="center" width="340" class-name="small-padding fixed-width">
@@ -112,8 +111,8 @@
         :rules="rules"
         :model="form"
         label-position="left"
-        label-width="70px"
-        style="width: 400px; margin-left:50px;"
+        label-width="100px"
+        style="width: 400px; margin-left:0px;"
       >
         <el-form-item label="名称" prop="name">
           <el-input v-model="form.name" placeholder="触发器名称" />
@@ -130,7 +129,10 @@
         <el-form-item v-if="form.type === 'timer'" label="间隔" prop="duration">
           <el-input v-model="form.duration" placeholder="触发器间隔" />
         </el-form-item>
-        <el-form-item label="描述">
+        <el-form-item label="是否启用" prop="status">
+          <el-switch v-model="form.status" :active-value="1" :inactive-value="0" />
+        </el-form-item>
+        <el-form-item label="描述" prop="desc">
           <el-input
             v-model="form.desc"
             :autosize="{ minRows: 3, maxRows: 6}"
@@ -186,7 +188,8 @@ export default {
     statusFilter(status) {
       status = status ?? 0
       const statusMap = {
-        1: 'applied'
+        0: '停用',
+        1: '启用'
       }
       return statusMap[status]
     }
@@ -356,6 +359,7 @@ export default {
             event: this.form.event,
             duration: this.form.duration,
             desc: this.form.desc,
+            status: this.form.status,
             updated_at: Date.now()
           })
 
