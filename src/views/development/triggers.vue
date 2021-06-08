@@ -49,7 +49,8 @@
       </el-table-column>
       <el-table-column label="类型" align="center">
         <template slot-scope="{row}">
-          <span v-if="row.type">{{ row.type }}</span>
+          <el-tag v-if="row.type === 'event'" type="primary">事件</el-tag>
+          <el-tag v-if="row.type === 'timer'" type="success">定时器</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="间隔" align="center">
@@ -118,15 +119,18 @@
           <el-input v-model="form.name" placeholder="触发器名称" />
         </el-form-item>
         <el-form-item label="类型" prop="type">
-          <el-input v-model="form.type" placeholder="触发器类型" />
+          <el-select v-model="form.type" placeholder="触发器类型" :disabled="form._id">
+            <el-option label="事件" value="event" />
+            <el-option label="定时器" value="timer" />
+          </el-select>
         </el-form-item>
-        <el-form-item label="事件" prop="event">
+        <el-form-item v-if="form.type === 'event'" label="事件" prop="event">
           <el-input v-model="form.event" placeholder="触发器事件" />
         </el-form-item>
-        <el-form-item label="间隔" prop="duration">
+        <el-form-item v-if="form.type === 'timer'" label="间隔" prop="duration">
           <el-input v-model="form.duration" placeholder="触发器间隔" />
         </el-form-item>
-        <el-form-item label="触发器描述">
+        <el-form-item label="描述">
           <el-input
             v-model="form.desc"
             :autosize="{ minRows: 3, maxRows: 6}"
@@ -157,9 +161,9 @@ function getDefaultFormValue() {
   return {
     _id: null,
     name: '',
-    type: '',
-    event: '/db/functions#add',
-    duration: 5,
+    type: 'event',
+    event: '',
+    duration: 60,
     desc: '',
     status: 1,
     created_at: Date.now(),
@@ -169,7 +173,9 @@ function getDefaultFormValue() {
 
 const formRules = {
   name: [{ required: true, message: '触发器名不可为空', trigger: 'blur' }],
-  type: [{ required: true, message: '请选择触发器类型', trigger: 'blur' }]
+  type: [{ required: true, message: '请选择触发器类型', trigger: 'blur' }],
+  event: [{ required: true, message: '请填写触发器事件', trigger: 'blur' }],
+  duration: [{ required: true, message: '请填写定时器间隔', trigger: 'blur' }]
 }
 
 export default {
@@ -213,9 +219,10 @@ export default {
       downloadLoading: false
     }
   },
-  created() {
+  async created() {
     this.funcId = this.$route.params.funcId
-    this.getFunction()
+    await this.getFunction()
+    this.setTagViewTitle()
     this.getList()
   },
   methods: {
@@ -250,7 +257,9 @@ export default {
 
       // 拼装查询条件 by this.listQuery
       const { limit, page, keyword } = this.listQuery
-      const query = { }
+      const query = {
+        func_id: this.funcId
+      }
       if (keyword) {
         query['$or'] = [
           { name: db.RegExp({ regexp: `.*${keyword}.*` }) },
@@ -394,6 +403,13 @@ export default {
       })
 
       this.list.splice(index, 1)
+    },
+    // 设置标签标题
+    setTagViewTitle() {
+      const label = this.func.label
+      const title = this.$route.meta.title
+      const route = Object.assign({}, this.$route, { title: `${title}: ${label}` })
+      this.$store.dispatch('tagsView/updateVisitedView', route)
     }
   }
 }
