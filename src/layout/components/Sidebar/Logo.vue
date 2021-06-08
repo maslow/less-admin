@@ -29,7 +29,7 @@ export default {
   },
   data() {
     return {
-      title: 'Go Chess Admin',
+      title: 'Less Admin',
       logo:
         'https://work.zhuo-zhuo.com/file/data/23ttprpxmavkkuf6nttc/PHID-FILE-vzv6dyqo3ev2tmngx7mu/logoL)?imageView2/1/w/80/h/80'
     }
