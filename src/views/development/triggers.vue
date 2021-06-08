@@ -118,7 +118,7 @@
           <el-input v-model="form.name" placeholder="触发器名称" />
         </el-form-item>
         <el-form-item label="类型" prop="type">
-          <el-select v-model="form.type" placeholder="触发器类型" :disabled="form._id">
+          <el-select v-model="form.type" placeholder="触发器类型" :disabled="!!form._id">
             <el-option label="事件" value="event" />
             <el-option label="定时器" value="timer" />
           </el-select>
@@ -127,7 +127,7 @@
           <el-input v-model="form.event" placeholder="触发器事件" />
         </el-form-item>
         <el-form-item v-if="form.type === 'timer'" label="间隔" prop="duration">
-          <el-input v-model="form.duration" placeholder="触发器间隔" />
+          <el-input v-model.number="form.duration" min="1" type="number" placeholder="触发器间隔(秒）" />
         </el-form-item>
         <el-form-item label="是否启用" prop="status">
           <el-switch v-model="form.status" :active-value="1" :inactive-value="0" />
@@ -157,6 +157,7 @@
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 import { db } from '@/api/cloud'
+import { applyTrigger } from '@/api/trigger'
 
 // 默认化创建表单的值
 function getDefaultFormValue() {
@@ -177,7 +178,7 @@ const formRules = {
   name: [{ required: true, message: '触发器名不可为空', trigger: 'blur' }],
   type: [{ required: true, message: '请选择触发器类型', trigger: 'blur' }],
   event: [{ required: true, message: '请填写触发器事件', trigger: 'blur' }],
-  duration: [{ required: true, message: '请填写定时器间隔', trigger: 'blur' }]
+  duration: [{ required: true, message: '请填写定时器间隔', trigger: 'blur' }, { type: 'number', message: '间隔必须为数字' }]
 }
 
 export default {
@@ -291,6 +292,10 @@ export default {
       this.total = total
       this.listLoading = false
     },
+    // 应用触发器配置
+    async applyTrigger(triggerId) {
+      await applyTrigger(triggerId)
+    },
     // 搜索
     handleFilter() {
       this.listQuery.page = 1
@@ -320,7 +325,6 @@ export default {
         if (!r.id) {
           this.$notify({
             type: 'error',
-            title: '操作失败',
             message: '创建失败！' + r.error
           })
           return
@@ -328,10 +332,10 @@ export default {
 
         this.$notify({
           type: 'success',
-          title: '操作成功',
           message: '创建成功！'
         })
 
+        this.applyTrigger(r.id)
         this.getList()
         this.dialogFormVisible = false
       })
@@ -378,23 +382,31 @@ export default {
           message: '更新成功！'
         })
 
+        this.applyTrigger(this.form._id)
         this.getList()
         this.dialogFormVisible = false
       })
     },
     // 删除请求
     async handleDelete(row, index) {
+      if (row.status === 1) {
+        this.$notify({
+          type: 'error',
+          title: '不可删除',
+          message: '请先将触发器停用后再删除'
+        })
+        return
+      }
       await this.$confirm('确认要删除此数据？', '删除确认')
 
       // 执行删除请求
       const r = await db.collection('triggers')
-        .where({ _id: row._id })
+        .where({ _id: row._id, status: 0 })
         .remove()
 
       if (!r.ok) {
         this.$notify({
           type: 'error',
-          title: '操作失败',
           message: '删除失败！' + r.error
         })
         return
@@ -402,7 +414,6 @@ export default {
 
       this.$notify({
         type: 'success',
-        title: '操作成功',
         message: '删除成功！'
       })
 
