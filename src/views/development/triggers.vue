@@ -85,6 +85,7 @@
       </el-table-column>
       <el-table-column fixed="right" label="操作" align="center" width="340" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
+          <el-button type="info" size="mini" @click="showTriggerLogs(row)">日志</el-button>
           <el-button v-permission="'trigger.edit'" type="primary" size="mini" @click="showUpdateForm(row)">
             编辑
           </el-button>
@@ -418,6 +419,10 @@ export default {
       })
 
       this.list.splice(index, 1)
+    },
+    // 查看触发器日志（跳转日志页）
+    showTriggerLogs(row) {
+      this.$router.push(`/development/function-logs?trigger_id=${row._id}`)
     },
     // 设置标签标题
     setTagViewTitle() {

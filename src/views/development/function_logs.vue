@@ -24,7 +24,7 @@
       highlight-current-row
       style="width: 100%;"
     >
-      <el-table-column label="RequestId" prop="id" align="center" width="300">
+      <el-table-column label="RequestId" prop="id" align="center" width="200">
         <template slot-scope="{row}">
           <span>{{ row.requestId }}</span>
         </template>
@@ -108,7 +108,8 @@ export default {
       listQuery: {
         page: 1,
         limit: 20,
-        keyword: undefined
+        keyword: undefined,
+        triggerId: undefined
       },
       textMap: {
         update: '编辑',
@@ -125,10 +126,10 @@ export default {
   },
   created() {
     this.func_id = this.$route.params.id ?? undefined
+    const triggerId = this.$route.query?.trigger_id
+    this.listQuery.triggerId = triggerId ?? undefined
     this.getList()
-    if (this.func_id) {
-      this.setTagViewTitle()
-    }
+    this.setTagViewTitle()
   },
   methods: {
     /**
@@ -138,7 +139,7 @@ export default {
       this.listLoading = true
 
       // 拼装查询条件 by this.listQuery
-      const { limit, page, keyword } = this.listQuery
+      const { limit, page, keyword, triggerId } = this.listQuery
       const query = {}
       if (keyword) {
         query['requestId'] = keyword
@@ -148,11 +149,16 @@ export default {
         query['func_id'] = this.func_id
       }
 
+      if (triggerId) {
+        query['trigger_id'] = triggerId
+      }
+
       // 执行数据查询
       const res = await db.collection('function_logs')
         .where(query)
         .limit(limit)
         .skip((page - 1) * limit)
+        .orderBy('created_at', 'desc')
         .get()
         .catch(() => { this.listLoading = false })
 
@@ -206,11 +212,18 @@ export default {
       this.isDialogVisiable = true
     },
     setTagViewTitle() {
-      if (!this.func_id) return
-      const label = this.func_id
-      const title = this.$route.meta.title
-      const route = Object.assign({}, this.$route, { title: `${title}: ${label}` })
-      this.$store.dispatch('tagsView/updateVisitedView', route)
+      if (this.func_id) {
+        const label = this.func_id
+        const title = this.$route.meta.title
+        const route = Object.assign({}, this.$route, { title: `${title}: ${label}` })
+        this.$store.dispatch('tagsView/updateVisitedView', route)
+      }
+      if (this.listQuery.triggerId) {
+        const label = 'trigger - ' + this.listQuery.triggerId
+        const title = this.$route.meta.title
+        const route = Object.assign({}, this.$route, { title: `${title}: ${label}` })
+        this.$store.dispatch('tagsView/updateVisitedView', route)
+      }
     }
   }
 }

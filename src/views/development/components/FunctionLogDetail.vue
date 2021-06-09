@@ -5,6 +5,9 @@
       <span
         v-if="data"
       >（ RequestId: {{ data.requestId }} ）</span>
+      <span
+        v-if="data"
+      > [ {{ data.created_at | parseTime('{y}-{m}-{d} {h}:{i}:{s}') }} ]</span>
     </div>
     <div class="logs">
       <div v-for="(log, index) in logs" :key="index" class="log-item">

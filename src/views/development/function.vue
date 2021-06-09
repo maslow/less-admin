@@ -1,30 +1,61 @@
 <template>
   <div class="components-container">
     <div v-if="func" class="header">
-      <h3>函数: {{ func.label }}</h3>
-      调用名：<el-tag type="success">{{ func.name }}</el-tag>
-    </div>
-    <div class="create-btn" style="margin-bottom: 10px; margin-top: 10px;">
+      <span style="font-size: 26px;line-height: 40px"><b>{{ func.label }}</b> </span>
+      <el-tag style="margin-left: 20px" size="small" type="success">{{ func.name }}</el-tag>
       <el-button
         v-permission="'function.read'"
+        style="margin-left: 20px"
         icon="el-icon-refresh"
-        type="primary"
+        type="text"
         :disabled="loading"
+        size="default"
         @click="getFunction"
       >刷新</el-button>
       <el-button
         v-permission="'function.edit'"
-        type="primary"
-        style="margin-left: 5px"
+        type="success"
+        size="small"
+        style="margin-left: 20px;"
         :disabled="loading || !func"
         @click="updateFunc"
       >保存</el-button>
+      <el-button size="medium" style="float: right;" type="primary" @click="showDebugPanel = true">显示调试面板</el-button>
     </div>
 
     <div style="display: flex;">
       <div class="editor-container">
-        <function-editor v-model="value" :height="800" />
+        <function-editor v-model="value" :height="800" :dark="false" />
       </div>
+      <div class="lastest-logs">
+        <el-card shadow="never" :body-style="{ padding: '20px' }">
+          <div slot="header">
+            <span>最近执行</span>
+            <el-button style="float: right; padding: 3px 0" type="text" @click="getLastestLogs">刷新</el-button>
+          </div>
+          <div v-for="log in lastestLogs" :key="log._id" class="log-item">
+
+            <el-tag type="warning" size="normal" @click="showLogDetailDlg(log)">
+              {{ log.created_at | parseTime('{y}-{m}-{d} {h}:{i}:{s}') }}
+            </el-tag>
+
+            <!-- <el-tag class="time" type="default" size="normal" @click="showLogDetailDlg(log)">查看</el-tag> -->
+          </div>
+        </el-card>
+      </div>
+    </div>
+
+    <el-drawer
+      title="调试面板"
+      :visible.sync="showDebugPanel"
+      direction="rtl"
+      size="40%"
+      :destroy-on-close="false"
+      :show-close="true"
+      :modal="true"
+      :wrapper-closable="true"
+    >
+
       <div class="invoke-panel">
         <div class="title">
           调用参数
@@ -42,6 +73,7 @@
             v-model="invokeParams"
             :line-numbers="false"
             :height="200"
+            :dark="false"
           />
         </div>
         <div v-if="invokeResult" class="invoke-result">
@@ -64,11 +96,17 @@
           </div>
         </div>
       </div>
-    </div>
+    </el-drawer>
+
+    <!-- 日志详情对话框 -->
+    <el-dialog v-if="logDetail" :visible.sync="isShowLogDetail" title="日志详情">
+      <FunctionLogDetail :data="logDetail" />
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import FunctionLogDetail from './components/FunctionLogDetail'
 import FunctionEditor from './components/FunctionEditor'
 import jsonEditor from './components/JsonEditor/param'
 import { db, cloud } from '@/api/cloud'
@@ -78,14 +116,23 @@ const defaultParamValue = {
 }
 export default {
   name: 'FunctionEditorPage',
-  components: { FunctionEditor, jsonEditor },
+  components: { FunctionEditor, jsonEditor, FunctionLogDetail },
   data() {
     return {
       loading: false,
       value: '',
       func: null,
+      func_id: '',
       invokeParams: defaultParamValue,
-      invokeResult: null
+      invokeResult: null,
+      // 调试面板显示控制
+      showDebugPanel: false,
+      // 最近日志
+      lastestLogs: [],
+      // 当前查看日志详情
+      logDetail: null,
+      // 日志详情对话框显示控制
+      isShowLogDetail: true
     }
   },
   computed: {
@@ -117,7 +164,9 @@ export default {
     }
   },
   async created() {
+    this.func_id = this.$route.params.id
     await this.getFunction()
+    this.getLastestLogs()
     this.setTagViewTitle()
   },
   methods: {
@@ -125,7 +174,7 @@ export default {
      * 获取函数数据
      */
     async getFunction() {
-      const func_id = this.$route.params.id
+      const func_id = this.func_id
       this.loading = true
       const r = await db
         .collection('functions')
@@ -199,6 +248,25 @@ export default {
 
       const res = await cloud.invokeFunctin(this.func.name, param, true)
       this.invokeResult = res
+      this.getLastestLogs()
+    },
+    async getLastestLogs() {
+      this.loading = true
+
+      // 执行数据查询
+      const res = await db.collection('function_logs')
+        .where({ func_id: this.func_id })
+        .limit(20)
+        .skip(0)
+        .orderBy('created_at', 'desc')
+        .get()
+        .finally(() => { this.loading = false })
+
+      this.lastestLogs = res.data || []
+    },
+    showLogDetailDlg(log) {
+      this.logDetail = log
+      this.isShowLogDetail = true
     },
     setTagViewTitle() {
       const label = this.func.label
@@ -228,13 +296,30 @@ export default {
   position: relative;
   height: 100%;
   margin-top: 10px;
-  width: 50%;
+  width: 90%;
+  border: 1px solid lightgray;
+}
+
+.lastest-logs {
+  padding-left: 20px;
+  padding-top: 10px;
+  width: 15%;
+
+  .log-item {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+
+    .time{
+      margin-left: 10px;
+    }
+  }
 }
 
 .invoke-panel {
   padding-left: 20px;
   padding-top: 10px;
-  width: 50%;
+  width: 90%;
   .title {
     font-weight: bold;
     span {
@@ -246,7 +331,7 @@ export default {
     margin-top: 10px;
     border: 1px dashed gray;
     margin-left: 2px;
-    width: 80%;
+    width: 100%;
   }
   .invoke-result {
     margin-top: 20px;

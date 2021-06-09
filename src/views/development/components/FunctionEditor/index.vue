@@ -40,7 +40,7 @@ monaco.languages.typescript.javascriptDefaults.addExtraLib(less_declare, 'global
 export default {
   name: 'FunctionEditor',
   /* eslint-disable vue/require-prop-types */
-  props: ['value', 'height'],
+  props: ['value', 'height', 'dark'],
   data() {
     return {
       editor: false
@@ -66,7 +66,7 @@ export default {
       lineNumbers: 'on',
       roundedSelection: true,
       scrollBeyondLastLine: false,
-      theme: 'vs-dark',
+      theme: this.dark ? 'vs-dark' : 'vs',
       readOnly: false,
       formatOnType: true,
       fontSize: 16,
