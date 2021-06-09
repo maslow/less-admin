@@ -60,7 +60,7 @@
             调用结果 <span v-if="invokeTime"> （ {{ invokeTime }} ms ）</span>
           </div>
           <div class="result">
-            <pre>{{ invokeReturn || '[ undefined ]' }}</pre>
+            <pre>{{ invokeReturn }}</pre>
           </div>
         </div>
       </div>
