@@ -628,8 +628,10 @@ interface FunctionContext {
     uid?: string
   }
   query?: any
-  body?: any,
+  body?: any
   requestId?: string
+  extra?: any
+  method?: string
 }
 
 interface ExportsStruct {
