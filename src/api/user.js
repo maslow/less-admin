@@ -18,7 +18,7 @@ export function login(data) {
  * @param {string} token
  * @returns
  */
-export function getInfo(token) {
+export function getInfo() {
   return request({
     url: '/admin/info',
     method: 'get'

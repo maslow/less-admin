@@ -6,7 +6,7 @@ export function getToken() {
   const token = localStorage.getItem(kToken)
   const expire = parseInt(localStorage.getItem(kExpire) || 0)
 
-  if (!expire || expire <= Date.now()) {
+  if (!expire || expire <= Date.now() / 1000) {
     removeToken()
   }
 

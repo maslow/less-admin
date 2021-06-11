@@ -319,7 +319,12 @@ export default {
 .invoke-panel {
   padding-left: 20px;
   padding-top: 10px;
-  width: 90%;
+  width: 100%;
+  height: calc(90vh);
+  padding-bottom: 20px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+
   .title {
     font-weight: bold;
     span {

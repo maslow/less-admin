@@ -614,35 +614,53 @@ export const less_declare = `
 ${database_type}
 ${storage_type}
 ${fetch_type}
-interface LessInterface {
-    fetch: AxiosStatic;
-    storage(namespace: string): FileStorageInterface;
-    database(): Db;
-    invoke: InvokeFunctionType;
-    emit: EmitFunctionType;
+
+type InvokeFunctionType = (name: string, param?: FunctionContext) => Promise<any>;
+type EmitFunctionType = (event: string, param: any) => void
+type GetTokenFunctionType = (payload: any) => string;
+type ParseTokenFunctionType = (token: string) => any | null;
+
+interface CloudSdkInterface {
+  fetch: AxiosStatic;
+  storage(namespace: string): FileStorageInterface;
+  database(): Db;
+  invoke: InvokeFunctionType;
+  emit: EmitFunctionType;
+  shared: Map<string, any>;
+  getToken: GetTokenFunctionType;
+  parseToken: ParseTokenFunctionType;
 }
-declare const less: LessInterface;
+
+interface File {
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  size: number;
+  destination: string;
+  filename: string;
+  path: string;
+}
 
 interface FunctionContext {
   auth?: {
     uid?: string
   }
-  query?: any
-  body?: any
-  requestId?: string
-  extra?: any
-  method?: string
+  files?: File[];
+  headers?: IncomingHttpHeaders;
+  query?: any;
+  body?: any;
+  params?: any;
+  auth?: any;
+  requestId?: string;
+  method?: string;
 }
 
 interface ExportsStruct {
   main: (ctx: FunctionContext) => any
 }
+
+declare const less: CloudSdkInterface;
 declare const exports: ExportsStruct
-
 declare function main(ctx: FunctionContext): any;
-type InvokeFunctionType = (name: string, param?: FunctionContext) => Promise<any>;
-type EmitFunctionType = (event: string, param: any) => void
-
-// declare type RequireFuncType = (module: 'crypto' | 'path' | 'querystring' | 'url' | 'lodash' | 'moment') => any;
-// declare const require: RequireFuncType
 `
