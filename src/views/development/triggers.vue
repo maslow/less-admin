@@ -61,7 +61,7 @@
       </el-table-column>
       <el-table-column label="描述" align="center">
         <template slot-scope="{row}">
-          <span v-if="row.description">{{ row.description }}</span>
+          <span v-if="row.desc">{{ row.desc }}</span>
           <span v-else>-</span>
         </template>
       </el-table-column>
