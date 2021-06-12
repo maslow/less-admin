@@ -423,9 +423,6 @@ declare class AggregationOperator {
 declare class ProjectionOperator {
   constructor(name: any, param: any);
 }
-
-
-
 `
 
 // Storage types
@@ -615,6 +612,12 @@ ${database_type}
 ${storage_type}
 ${fetch_type}
 
+declare class FunctionConsole {
+  private _logs;
+  get logs(): any[];
+  log(...params: any[]): void;
+}
+
 type InvokeFunctionType = (name: string, param?: FunctionContext) => Promise<any>;
 type EmitFunctionType = (event: string, param: any) => void
 type GetTokenFunctionType = (payload: any) => string;
@@ -656,11 +659,17 @@ interface FunctionContext {
   method?: string;
 }
 
-interface ExportsStruct {
+interface IModule {
+  exports: IExports
+}
+
+interface IExports {
   main: (ctx: FunctionContext) => any
 }
 
 declare const less: CloudSdkInterface;
-declare const exports: ExportsStruct
+declare const module: IModule
+declare const exports: IExports
+declare const console: FunctionConsole
 declare function main(ctx: FunctionContext): any;
 `
