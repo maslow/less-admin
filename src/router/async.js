@@ -75,7 +75,7 @@ export const asyncRoutes = [
           title: '云函数',
           icon: 'lock',
           noCache: true,
-          permissions: ['function.read', 'function.edit', 'function.triggers', 'function.publish', 'function.create', 'function.debug']
+          permissions: ['function.read', 'function.edit', 'function.publish', 'function.create', 'function.debug']
         }
       },
       {

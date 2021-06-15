@@ -79,8 +79,11 @@
       </el-table-column>
       <el-table-column label="状态" class-name="status-col" width="120">
         <template slot-scope="{row}">
-          <el-tag type="success">
-            {{ row.status | statusFilter }}
+          <el-tag v-if="row.status === 1" type="success">
+            启用
+          </el-tag>
+          <el-tag v-if="row.status === 0" type="danger">
+            停用
           </el-tag>
         </template>
       </el-table-column>
@@ -121,14 +124,20 @@
         :rules="rules"
         :model="form"
         label-position="left"
-        label-width="70px"
-        style="width: 400px; margin-left:50px;"
+        label-width="120px"
+        style="width: 400px; margin-left:20px;"
       >
         <el-form-item label="显示名称" prop="label">
           <el-input v-model="form.label" placeholder="函数显示名，可为中文" />
         </el-form-item>
         <el-form-item label="函数名" prop="name">
           <el-input v-model="form.name" placeholder="函数的唯一标识，如 get-user" />
+        </el-form-item>
+        <el-form-item label="HTTP访问" prop="enableHTTP">
+          <el-switch v-model="form.enableHTTP" :active-value="true" :inactive-value="false" />
+        </el-form-item>
+        <el-form-item label="启用" prop="status">
+          <el-switch v-model="form.status" :active-value="1" :inactive-value="0" />
         </el-form-item>
         <el-form-item label="函数描述">
           <el-input
@@ -185,8 +194,9 @@ function getDefaultFormValue() {
     name: '',
     label: '',
     description: '',
-    status: 0,
+    status: 1,
     tags: [],
+    enableHTTP: true,
     version: 0,
     created_at: Date.now(),
     updated_at: Date.now(),
@@ -207,7 +217,8 @@ export default {
     statusFilter(status) {
       status = status ?? 0
       const statusMap = {
-        0: 'published'
+        0: 'disabled',
+        1: 'enabled'
       }
       return statusMap[status]
     }
@@ -340,6 +351,8 @@ export default {
             name: this.form.name,
             label: this.form.label,
             description: this.form.description,
+            enableHTTP: this.form.enableHTTP ?? true,
+            status: this.form.status ?? 1,
             updated_at: Date.now()
           })
 

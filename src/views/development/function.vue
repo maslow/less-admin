@@ -208,6 +208,10 @@ export default {
 
       this.loading = true
 
+      let param = this.invokeParams
+      if (typeof param !== 'string') {
+        param = JSON.stringify(this.invokeParams)
+      }
       const r = await db
         .collection('functions')
         .where({
@@ -215,8 +219,8 @@ export default {
         })
         .update({
           code: this.value,
-          update_time: Date.now(),
-          debugParams: this.invokeParams
+          update_at: Date.now(),
+          debugParams: param
         })
 
       if (!r.ok) {
@@ -226,6 +230,8 @@ export default {
       }
 
       if (showTip) {
+        await this.getFunction()
+        await this.addFunctionHistory()
         this.$notify({
           type: 'success',
           title: '保存',
@@ -250,6 +256,9 @@ export default {
       this.invokeResult = res
       this.getLastestLogs()
     },
+    /**
+     * 获取最近日志
+     */
     async getLastestLogs() {
       this.loading = true
 
@@ -263,6 +272,18 @@ export default {
         .finally(() => { this.loading = false })
 
       this.lastestLogs = res.data || []
+    },
+    /**
+     * 添加函数的更新记录
+     */
+    async addFunctionHistory() {
+      const data = Object.assign({}, this.func)
+      await db.collection('function_history')
+        .add({
+          func_id: this.func._id,
+          data: data,
+          created_at: Date.now()
+        })
     },
     showLogDetailDlg(log) {
       this.logDetail = log
