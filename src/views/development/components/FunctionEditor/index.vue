@@ -8,6 +8,8 @@
 import * as monaco from 'monaco-editor'
 import 'monaco-editor/esm/vs/basic-languages/javascript/javascript'
 
+// TIP: 本页面残留的注释代码为 auto-typings 研究（未完成），暂保留注释以便下回继续。
+
 // import { AutoTypings, LocalStorageCache } from 'monaco-editor-auto-typings'
 
 import { less_declare, path_declare, crypto_declare, url_declare } from './types/index'
@@ -76,7 +78,7 @@ export default {
       smoothScrolling: true,
       renderWhitespace: 'selection',
       tabSize: 2,
-      model: monaco.editor.createModel('', 'javascript', monaco.Uri.parse(typeRoot + 'index.js'))
+      model: monaco.editor.createModel('', 'javascript' /* ,monaco.Uri.parse(typeRoot + 'index.js') */)
     })
 
     this.editor.onDidChangeModelContent(e => {

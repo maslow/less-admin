@@ -112,7 +112,7 @@ import jsonEditor from './components/JsonEditor/param'
 import { db, cloud } from '@/api/cloud'
 
 const defaultParamValue = {
-  code: 'hi'
+  code: 'less'
 }
 export default {
   name: 'FunctionEditorPage',
@@ -192,6 +192,7 @@ export default {
 
       this.func = r.data
       this.value = this.func.code
+      this.invokeParams = this.parseInvokeParam(this.func.debugParams) ?? defaultParamValue
       this.loading = false
     },
     /**
@@ -206,6 +207,7 @@ export default {
       }
 
       this.loading = true
+
       const r = await db
         .collection('functions')
         .where({
@@ -213,7 +215,8 @@ export default {
         })
         .update({
           code: this.value,
-          update_time: Date.now()
+          update_time: Date.now(),
+          debugParams: this.invokeParams
         })
 
       if (!r.ok) {
@@ -241,10 +244,7 @@ export default {
         return
       }
 
-      let param = this.invokeParams
-      if (typeof param === 'string') {
-        param = JSON.parse(param)
-      }
+      const param = this.parseInvokeParam(this.invokeParams)
 
       const res = await cloud.invokeFunctin(this.func.name, param, true)
       this.invokeResult = res
@@ -286,6 +286,18 @@ export default {
         return error
       }
       return null
+    },
+    // 解析函数调试参数
+    parseInvokeParam(data) {
+      let param
+      try {
+        param = JSON.parse(data)
+      } catch (error) {
+        console.log(data, error)
+        param = data
+      }
+
+      return param
     }
   }
 }
