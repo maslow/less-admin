@@ -26,7 +26,7 @@ export const asyncRoutes = [
       },
       {
         path: 'permission',
-        component: () => import('@/views/permissions/index'),
+        component: () => import('@/views/system/permission'),
         name: 'PermissionManagement',
         meta: {
           title: '权限',

@@ -13,10 +13,10 @@
         class="filter-item"
         @keyup.enter.native="handleFilter"
       />
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
+      <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         搜索
       </el-button>
-      <el-button v-permission="'trigger.create'" v-waves class="filter-item" type="primary" icon="el-icon-search" @click="showCreateForm">
+      <el-button v-permission="'trigger.create'" class="filter-item" type="primary" icon="el-icon-search" @click="showCreateForm">
         新建触发器
       </el-button>
     </div>
@@ -155,7 +155,6 @@
 </template>
 
 <script>
-import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 import { db } from '@/api/cloud'
 import { applyTrigger } from '@/api/trigger'
@@ -185,7 +184,7 @@ const formRules = {
 export default {
   name: 'TriggerListPage',
   components: { Pagination },
-  directives: { waves },
+  directives: { },
   filters: {
     statusFilter(status) {
       status = status ?? 0

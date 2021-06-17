@@ -1,4 +1,4 @@
-<template>
+Hamburger<template>
   <div style="padding: 0 15px;" @click="toggleClick">
     <svg
       :class="{'is-active':isActive}"

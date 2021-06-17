@@ -9,11 +9,10 @@
         class="filter-item"
         @keyup.enter.native="handleFilter"
       />
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
+      <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         搜索
       </el-button>
       <el-button
-        v-waves
         :loading="downloadLoading"
         class="filter-item"
         type="primary"
@@ -22,7 +21,7 @@
       >
         导出
       </el-button>
-      <el-button v-permission="'function.create'" v-waves class="filter-item" type="primary" icon="el-icon-search" @click="showCreateForm">
+      <el-button v-permission="'function.create'" class="filter-item" type="primary" icon="el-icon-search" @click="showCreateForm">
         新建函数
       </el-button>
     </div>
@@ -48,7 +47,7 @@
           <span>{{ row._id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="函数名" width="150px">
+      <el-table-column label="函数标识" width="150px">
         <template slot-scope="{row}">
           <span>{{ row.name }}</span>
         </template>
@@ -89,6 +88,9 @@
       </el-table-column>
       <el-table-column fixed="right" label="操作" align="center" width="390" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
+          <el-button v-permission="'function.edit'" type="primary" size="mini" @click="showUpdateForm(row)">
+            编辑
+          </el-button>
           <el-button v-permission="'function.debug'" type="success" size="mini" @click="handleShowDetail(row)">
             调试
           </el-button>
@@ -97,9 +99,6 @@
           </el-button>
           <el-button v-permission="'function.edit'" size="mini" @click="handleTriggers(row)">
             触发器
-          </el-button>
-          <el-button v-permission="'function.edit'" type="primary" size="mini" @click="showUpdateForm(row)">
-            编辑
           </el-button>
           <el-button v-if="row.status!='deleted'" v-permission="'function.delete'" size="mini" type="danger" @click="handleDelete(row,$index)">
             删除
@@ -130,7 +129,7 @@
         <el-form-item label="显示名称" prop="label">
           <el-input v-model="form.label" placeholder="函数显示名，可为中文" />
         </el-form-item>
-        <el-form-item label="函数名" prop="name">
+        <el-form-item label="函数标识" prop="name">
           <el-input v-model="form.name" placeholder="函数的唯一标识，如 get-user" />
         </el-form-item>
         <el-form-item label="HTTP访问" prop="enableHTTP">
@@ -161,7 +160,6 @@
 </template>
 
 <script>
-import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 import { db } from '@/api/cloud'
 import XLSX from 'xlsx'
@@ -205,14 +203,14 @@ function getDefaultFormValue() {
 }
 
 const formRules = {
-  name: [{ required: true, message: '函数名不可为空', trigger: 'blur' }],
+  name: [{ required: true, message: '函数标识不可为空', trigger: 'blur' }],
   label: [{ required: true, message: '函数显示名称不可为空', trigger: 'blur' }]
 }
 
 export default {
   name: 'FunctionListPage',
   components: { Pagination },
-  directives: { waves },
+  directives: { },
   filters: {
     statusFilter(status) {
       status = status ?? 0

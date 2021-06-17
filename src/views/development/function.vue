@@ -31,7 +31,7 @@
         <el-card shadow="never" :body-style="{ padding: '20px' }">
           <div slot="header">
             <span>最近执行</span>
-            <el-button style="float: right; padding: 3px 0" type="text" @click="getLastestLogs">刷新</el-button>
+            <el-button style="float: right; padding: 3px 0" type="text" @click="getLatestLogs">刷新</el-button>
           </div>
           <div v-for="log in lastestLogs" :key="log._id" class="log-item">
 
@@ -166,7 +166,7 @@ export default {
   async created() {
     this.func_id = this.$route.params.id
     await this.getFunction()
-    this.getLastestLogs()
+    this.getLatestLogs()
     this.setTagViewTitle()
   },
   methods: {
@@ -254,12 +254,12 @@ export default {
 
       const res = await cloud.invokeFunctin(this.func.name, param, true)
       this.invokeResult = res
-      this.getLastestLogs()
+      this.getLatestLogs()
     },
     /**
      * 获取最近日志
      */
-    async getLastestLogs() {
+    async getLatestLogs() {
       this.loading = true
 
       // 执行数据查询
