@@ -27,7 +27,7 @@ monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
   moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
   module: monaco.languages.typescript.ModuleKind.CommonJS,
   noEmit: true,
-  allowJs: true,
+  allowJs: false, // 此选项为 true 会影响 main 函数的类型推导
   typeRoots: ['file:///node_modules/@types']
 })
 
