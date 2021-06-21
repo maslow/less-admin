@@ -16,7 +16,7 @@ import { less_declare, path_declare, crypto_declare, url_declare } from './types
 const typeRoot = 'file:///'
 // validation settings
 monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
-  noSemanticValidation: false,
+  noSemanticValidation: true,
   noSyntaxValidation: false
 })
 // compiler options
@@ -27,6 +27,7 @@ monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
   moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
   module: monaco.languages.typescript.ModuleKind.CommonJS,
   noEmit: true,
+  allowJs: true,
   typeRoots: ['file:///node_modules/@types']
 })
 

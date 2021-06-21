@@ -386,6 +386,7 @@ export default {
       padding: 16px;
       background: rgba(233, 243, 221, 0.472);
       border-radius: 10px;
+      overflow-x: auto;
     }
   }
 }
