@@ -124,6 +124,17 @@ export const asyncRoutes = [
           noCache: true,
           permissions: ['trigger.read', 'trigger.edit', 'trigger.create', 'trigger.debug']
         }
+      },
+      {
+        path: 'collections',
+        component: () => import('@/views/development/collections'),
+        name: 'CollectionManagement',
+        meta: {
+          title: '集合管理',
+          icon: 'lock',
+          noCache: true,
+          permissions: ['collections.get', 'collections.createIndex', 'collections.deleteIndex']
+        }
       }
     ]
   },
