@@ -90,7 +90,7 @@ export const rules_schemas = [
           type: ['string', 'boolean']
         },
         required: { type: 'boolean' },
-        default: { type: 'boolean' },
+        default: { type: ['string', 'boolean', 'number', 'array', 'object'] },
         unique: { type: 'boolean' },
         number: {
           type: 'array',

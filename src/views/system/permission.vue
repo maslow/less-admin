@@ -61,13 +61,6 @@
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column label="状态" class-name="status-col" width="120">
-        <template slot-scope="{row}">
-          <el-tag type="success">
-            {{ row.status | statusFilter }}
-          </el-tag>
-        </template>
-      </el-table-column>
       <el-table-column label="操作" align="center" width="340" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
           <el-button v-permission="'permission.edit'" type="primary" size="mini" @click="showUpdateForm(row)">
@@ -153,7 +146,6 @@ export default {
   filters: {
     statusFilter(status) {
       status = status ?? 0
-      // @TODO
       // 状态映射表
       const statusMap = {
         0: 'published'
@@ -320,7 +312,7 @@ export default {
 
       // 执行删除请求
       const r = await db.collection('permissions')
-        .where({ _id: row._id })
+        .where({ name: row.name })
         .remove()
 
       if (!r.ok) {

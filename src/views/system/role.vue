@@ -152,7 +152,7 @@ export default {
         .then(async() => {
           const r = await db
             .collection('roles')
-            .where({ _id: row._id })
+            .where({ name: row.name })
             .remove()
           if (!r.ok) return
           this.rolesList.splice($index, 1)

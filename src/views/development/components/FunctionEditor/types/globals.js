@@ -438,10 +438,42 @@ interface FileInfo {
   namespace?: string;
 }
 interface FileStorageInterface {
+  /**
+   * 保存文件，主要用于将上传的临时文件保存（移动）到 storage 目录
+   * @param filePath 要保存的文件路径
+   * @return {Promise<FileInfo>}
+   */
   saveFile(filePath: string): Promise<FileInfo>;
+
+  /**
+   * 获取文件信息
+   * @param filename 文件名
+   * @return {Promise<FileInfo>}
+   */
   getFileInfo(filename: string): Promise<FileInfo>;
+
+  /**
+   * 删除文件
+   * @param filename 文件名
+   * @return {Promise<boolean>}
+   */
   deleteFile(filename: string): Promise<boolean>;
+  /**
+   * 读取文件
+   * @param {string} filename 文件名
+   * @return {Promise<Buffer>}
+   */
   readFile(filename: string, encoding?: string): Promise<Buffer>;
+  
+  /**
+   * 检查文件夹名是否安全
+   */
+  checkSafeDirectoryName(name: string): boolean;
+
+  /**
+   * 检查文件名是否安全
+   */
+  checkSafeFilename(name: string): boolean;
 }
 `
 
