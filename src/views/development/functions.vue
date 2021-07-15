@@ -26,6 +26,16 @@
       </el-button>
     </div>
 
+    <!-- 标签类别 -->
+
+    <div class="tag-selector">
+      <div class="label">标签类别</div>
+      <el-radio-group v-model="listQuery.tag" size="mini" @change="getList">
+        <el-radio-button :label="''" border>全部</el-radio-button>
+        <el-radio-button v-for="tag in all_tags" :key="tag" :label="tag" border>{{ tag }}</el-radio-button>
+      </el-radio-group>
+    </div>
+
     <!-- 表格 -->
     <el-table
       :key="tableKey"
@@ -38,55 +48,60 @@
     >
       <el-table-column
         label="ID"
-        prop="id"
-        sortable="custom"
+        prop="_id"
         align="center"
-        width="240"
       >
         <template slot-scope="{row}">
           <span>{{ row._id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="函数标识" width="150px">
+      <el-table-column label="函数标识" min-width="100">
         <template slot-scope="{row}">
-          <span>{{ row.name }}</span>
+          <div class="func-name">
+            {{ row.name }}
+          </div>
         </template>
       </el-table-column>
-      <el-table-column label="名称" min-width="150px">
+      <el-table-column label="函数标题" min-width="100px">
         <template slot-scope="{row}">
           <span class="link-type" @click="showUpdateForm(row)">{{ row.label }}</span>
-          <el-tag v-for="tag in row.tags" :key="tag">{{ tag }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="函数说明" align="center">
+      <el-table-column label="标签" width="150">
         <template slot-scope="{row}">
-          <span v-if="row.description">{{ row.description }}</span>
-          <span v-else>-</span>
+          <el-tag v-for="tag in row.tags" :key="tag" style="margin-right: 6px" type="primary" size="mini">{{ tag }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" width="150px" align="center">
+      <el-table-column label="创建/更新时间" width="150px" align="center">
         <template slot-scope="{row}">
           <span v-if="row.created_at">{{ row.created_at | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
           <span v-else>-</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="更新时间" width="150px" align="center">
-        <template slot-scope="{row}">
+          <br>
           <span v-if="row.updated_at">{{ row.updated_at | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column label="状态" class-name="status-col" width="120">
+      <el-table-column label="HTTP访问" class-name="status-col" width="100">
         <template slot-scope="{row}">
-          <el-tag v-if="row.status === 1" type="success">
-            启用
+          <el-tag v-if="row.enableHTTP" type="success" size="mini">
+            可
           </el-tag>
-          <el-tag v-if="row.status === 0" type="danger">
-            停用
+          <el-tag v-else type="info" size="mini">
+            不
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column fixed="right" label="操作" align="center" width="390" class-name="small-padding fixed-width">
+      <el-table-column label="启停状态" class-name="status-col" width="80">
+        <template slot-scope="{row}">
+          <el-tag v-if="row.status === 1" type="success" size="mini">
+            启
+          </el-tag>
+          <el-tag v-if="row.status === 0" type="info" size="mini">
+            停
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column fixed="right" label="操作" align="center" width="380" class-name="small-padding">
         <template slot-scope="{row,$index}">
           <el-button v-permission="'function.edit'" type="primary" size="mini" @click="showUpdateForm(row)">
             编辑
@@ -134,6 +149,10 @@
         </el-form-item>
         <el-form-item label="HTTP访问" prop="enableHTTP">
           <el-switch v-model="form.enableHTTP" :active-value="true" :inactive-value="false" />
+        </el-form-item>
+        <el-form-item label="标签分类" prop="tags">
+          <el-tag v-for="(tag, index) in form.tags" :key="tag" style="margin-right: 10px;" type="" size="medium" closable @close="removeTag(index)">{{ tag }}</el-tag>
+          <el-autocomplete v-model="form._tag_input" :fetch-suggestions="suggestTags" class="input-new-tag" clearable size="mini" type="text" placeholder="添加" @select="addTag" @change="addTag" />
         </el-form-item>
         <el-form-item label="启用" prop="status">
           <el-switch v-model="form.status" :active-value="1" :inactive-value="0" />
@@ -198,7 +217,8 @@ function getDefaultFormValue() {
     version: 0,
     created_at: Date.now(),
     updated_at: Date.now(),
-    code: defaultCode
+    code: defaultCode,
+    _tag_input: ''
   }
 }
 
@@ -230,7 +250,8 @@ export default {
       listQuery: {
         page: 1,
         limit: 20,
-        keyword: undefined
+        keyword: undefined,
+        tag: ''
       },
       showReviewer: false,
       form: getDefaultFormValue(),
@@ -241,13 +262,32 @@ export default {
         create: '创建'
       },
       rules: formRules,
-      downloadLoading: false
+      downloadLoading: false,
+      all_tags: []
     }
+  },
+  computed: {
   },
   created() {
     this.getList()
+    this.getAllTags()
   },
   methods: {
+    /** 获取所有标签 */
+    async getAllTags() {
+      const r = await db.collection('functions')
+        .field(['tags'])
+        .where({
+          tags: db.command.exists(true)
+        })
+        .get()
+
+      const tags = []
+      for (const item of r.data) {
+        tags.push(...(item?.tags || []))
+      }
+      this.all_tags = Array.from(new Set(tags))
+    },
     /**
      * 获取数据列表
      */
@@ -255,7 +295,7 @@ export default {
       this.listLoading = true
 
       // 拼装查询条件 by this.listQuery
-      const { limit, page, keyword } = this.listQuery
+      const { limit, page, keyword, tag } = this.listQuery
       const query = { }
       if (keyword) {
         query['$or'] = [
@@ -263,6 +303,10 @@ export default {
           { label: db.RegExp({ regexp: `.*${keyword}.*` }) },
           { description: db.RegExp({ regexp: `.*${keyword}.*` }) }
         ]
+      }
+
+      if (tag !== '') {
+        query['tags'] = tag
       }
 
       // 执行数据查询
@@ -305,9 +349,12 @@ export default {
       this.$refs['dataForm'].validate(async(valid) => {
         if (!valid) { return }
 
+        const data = Object.assign({}, this.form)
+        delete data['_tag_input']
+
         // 执行创建请求
         const r = await db.collection('functions')
-          .add(this.form)
+          .add(data)
 
         if (!r.id) {
           this.$notify({
@@ -330,7 +377,7 @@ export default {
     },
     // 显示更新表单
     showUpdateForm(row) {
-      this.form = Object.assign({}, row) // copy obj
+      this.form = Object.assign(getDefaultFormValue(), row) // copy obj
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -348,6 +395,7 @@ export default {
           .update({
             name: this.form.name,
             label: this.form.label,
+            tags: this.form.tags || [],
             description: this.form.description,
             enableHTTP: this.form.enableHTTP ?? true,
             status: this.form.status ?? 1,
@@ -432,7 +480,61 @@ export default {
       XLSX.writeFile(wb, '云函数.xlsx')
 
       this.downloadLoading = false
+    },
+    // 搜索建议标签
+    async suggestTags(queryString, cb) {
+      const data = this.all_tags
+        .filter(it => {
+          return it.indexOf(queryString) >= 0
+        })
+        .map(it => {
+          return { value: it }
+        })
+
+      cb(data)
+    },
+    // 删除标签
+    removeTag(index) {
+      const tags = this.form.tags || []
+      if (!tags.length) return
+      tags.splice(index, 1)
+    },
+    // 添加标签
+    addTag() {
+      const val = this.form._tag_input
+      console.log('val: ', val)
+
+      if (!val) return
+      if (!this.form.tags.includes(val)) {
+        this.form.tags.push(val)
+      }
+      this.form._tag_input = ''
     }
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.tag-selector {
+  margin: 20px 0;
+  display: flex;
+
+  .label {
+    font-size: 14px;
+    color: gray;
+    align-self: center;
+    padding-right: 20px;
+  }
+}
+
+.func-name {
+  // color: black;
+  font-weight: bold;
+  font-size: 16px;
+}
+.input-new-tag {
+    width: 120px;
+    margin-left: 10px;
+    vertical-align: bottom;
+}
+</style>

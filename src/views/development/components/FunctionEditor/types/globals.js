@@ -700,6 +700,7 @@ interface IExports {
 }
 
 declare const less: CloudSdkInterface;
+declare const cloud: CloudSdkInterface;
 declare const module: IModule
 declare const exports: IExports
 declare const console: FunctionConsole
