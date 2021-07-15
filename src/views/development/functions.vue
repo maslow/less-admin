@@ -189,12 +189,12 @@ exports.main = async function (ctx) {
   const { auth, body, query } = ctx
 
   // 数据库操作
-  const db = less.database()
+  const db = cloud.database()
   const db_res = await db.collection('admins').get()
   console.log(db_res)
 
   // 网络操作
-  const res = await less.fetch("https://www.v2ex.com/api/topics/hot.json")
+  const res = await cloud.fetch("https://www.v2ex.com/api/topics/hot.json")
   console.log(res.status)
 
   return {

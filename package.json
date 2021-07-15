@@ -1,6 +1,6 @@
 {
   "name": "less-admin",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A magical vue admin. An out-of-box UI solution for enterprise applications. Newest development stack of vue. Lots of awesome features",
   "author": "Maslow <wangfugen@126.com>",
   "scripts": {
@@ -14,7 +14,10 @@
     "test:unit": "jest --clearCache && vue-cli-service test:unit",
     "test:ci": "npm run lint && npm run test:unit",
     "prepare": "husky install",
-    "commit": "commit"
+    "commit": "commit",
+    "docker-build": "docker build -t lessx/less-admin:latest .",
+    "docker-push": "docker push lessx/less-admin:latest",
+    "docker-bp": "npm run build:prod && npm run docker-build && npm run docker-push"
   },
   "dependencies": {
     "axios": "^0.21.1",
