@@ -50,6 +50,7 @@
         label="ID"
         prop="_id"
         align="center"
+        min-width="100"
       >
         <template slot-scope="{row}">
           <span>{{ row._id }}</span>
@@ -69,7 +70,7 @@
       </el-table-column>
       <el-table-column label="标签" width="150">
         <template slot-scope="{row}">
-          <el-tag v-for="tag in row.tags" :key="tag" style="margin-right: 6px" type="primary" size="mini">{{ tag }}</el-tag>
+          <el-tag v-for="tag in row.tags" :key="tag" style="margin-right: 6px;" type="primary" size="mini">{{ tag }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="创建/更新时间" width="150px" align="center">
@@ -83,20 +84,20 @@
       </el-table-column>
       <el-table-column label="HTTP访问" class-name="status-col" width="100">
         <template slot-scope="{row}">
-          <el-tag v-if="row.enableHTTP" type="success" size="mini">
+          <el-tag v-if="row.enableHTTP" type="success" size="mini" style="font-weight: bold">
             可
           </el-tag>
-          <el-tag v-else type="info" size="mini">
+          <el-tag v-else type="info" size="mini" style="font-weight: bold">
             不
           </el-tag>
         </template>
       </el-table-column>
       <el-table-column label="启停状态" class-name="status-col" width="80">
         <template slot-scope="{row}">
-          <el-tag v-if="row.status === 1" type="success" size="mini">
+          <el-tag v-if="row.status === 1" type="success" size="mini" style="font-weight: bold">
             启
           </el-tag>
-          <el-tag v-if="row.status === 0" type="info" size="mini">
+          <el-tag v-if="row.status === 0" type="info" size="mini" style="font-weight: bold">
             停
           </el-tag>
         </template>
@@ -528,8 +529,8 @@ export default {
 }
 
 .func-name {
-  // color: black;
-  font-weight: bold;
+  color: black;
+  // font-weight: bold;
   font-size: 16px;
 }
 .input-new-tag {

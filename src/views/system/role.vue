@@ -3,17 +3,17 @@
     <el-button v-permission="'role.create'" type="primary" @click="handleAddRole">创建角色</el-button>
 
     <el-table :data="rolesList" style="width: 100%;margin-top:30px;" border>
-      <el-table-column align="center" label="ID" width="220">
+      <el-table-column align="center" label="ID">
         <template slot-scope="scope">
           {{ scope.row._id }}
         </template>
       </el-table-column>
-      <el-table-column align="center" label="角色标识" width="220">
+      <el-table-column align="center" label="角色标识">
         <template slot-scope="scope">
           {{ scope.row.name }}
         </template>
       </el-table-column>
-      <el-table-column align="center" label="显示名称" width="220">
+      <el-table-column align="center" label="显示名称">
         <template slot-scope="scope">
           {{ scope.row.label }}
         </template>
@@ -23,7 +23,7 @@
           {{ scope.row.description }}
         </template>
       </el-table-column>
-      <el-table-column align="left" label="权限">
+      <el-table-column align="left" label="权限" min-width="300">
         <template slot-scope="{ row }">
           <el-tag
             v-for="perm in row.full_permissions"
