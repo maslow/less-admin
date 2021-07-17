@@ -36,13 +36,13 @@ export class Cloud extends less.Cloud {
   /**
    * 上传文件
    */
-  async uploadFile(file) {
+  async uploadFile(file, namespace = 'public') {
     const form = new FormData()
     form.append('file', file)
     const token = this.config?.getAccessToken()
     const res = await axios.request({
       method: 'post',
-      url: this.fileUrl + '/upload',
+      url: this.fileUrl + `/upload/${namespace}`,
       headers: {
         'Content-Type': 'multipart/form-data',
         authorization: `Bearer ${token}`
