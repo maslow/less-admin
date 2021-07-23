@@ -434,7 +434,7 @@ interface FileInfo {
   size: number;
   path: string;
   fullpath?: string;
-  orignal_name?: string;
+  original_name?: string;
   namespace?: string;
 }
 interface FileStorageInterface {
@@ -644,13 +644,20 @@ ${database_type}
 ${storage_type}
 ${fetch_type}
 
+interface FunctionResult {
+  data?: any,
+  logs: any[],
+  error?: any,
+  time_usage: number
+}
+
 declare class FunctionConsole {
   private _logs;
   get logs(): any[];
   log(...params: any[]): void;
 }
 
-type InvokeFunctionType = (name: string, param?: FunctionContext) => Promise<any>;
+type InvokeFunctionType = (name: string, param?: FunctionContext) => Promise<FunctionResult>;
 type EmitFunctionType = (event: string, param: any) => void
 type GetTokenFunctionType = (payload: any) => string;
 type ParseTokenFunctionType = (token: string) => any | null;

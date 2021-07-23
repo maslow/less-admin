@@ -45,15 +45,15 @@
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" width="150px" align="center">
+      <el-table-column label="创建时间" width="160px" align="center">
         <template slot-scope="{row}">
-          <span v-if="row.created_at">{{ row.created_at | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span v-if="row.created_at">{{ row.created_at | parseTime('{y}-{m}-{d} {h}:{i}:{s}') }}</span>
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新时间" width="150px" align="center">
+      <el-table-column label="更新时间" width="160px" align="center">
         <template slot-scope="{row}">
-          <span v-if="row.updated_at">{{ row.updated_at | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span v-if="row.updated_at">{{ row.updated_at | parseTime('{y}-{m}-{d} {h}:{i}:{s}') }}</span>
           <span v-else>-</span>
         </template>
       </el-table-column>
