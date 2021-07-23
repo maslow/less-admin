@@ -79,7 +79,7 @@ export default {
       smoothScrolling: true,
       renderWhitespace: 'selection',
       tabSize: 2,
-      model: monaco.editor.createModel('', 'javascript' /* ,monaco.Uri.parse(typeRoot + 'index.js') */)
+      model: monaco.editor.createModel('', 'typescript' /* ,monaco.Uri.parse(typeRoot + 'index.js') */)
     })
 
     this.editor.onDidChangeModelContent(e => {

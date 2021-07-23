@@ -699,6 +699,9 @@ interface IExports {
   main: (ctx: FunctionContext) => any
 }
 
+/**
+ * Alias of cloud
+ */
 declare const less: CloudSdkInterface;
 declare const cloud: CloudSdkInterface;
 declare const module: IModule

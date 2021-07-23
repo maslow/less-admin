@@ -61,7 +61,7 @@ export const asyncRoutes = [
         component: () => import('@/views/development/rules'),
         name: 'RuleManagement',
         meta: {
-          title: '访问规则',
+          title: '访问策略',
           icon: 'lock',
           noCache: true,
           permissions: ['rule.read', 'rule.edit', 'rule.delete']

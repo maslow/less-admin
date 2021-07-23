@@ -252,7 +252,7 @@ export default {
 
       const param = this.parseInvokeParam(this.invokeParams)
 
-      const res = await cloud.invokeFunctin(this.func.name, param, true)
+      const res = await cloud.invokeFunction(this.func.name, param, true)
       this.invokeResult = res
       this.getLatestLogs()
     },
