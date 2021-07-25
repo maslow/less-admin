@@ -8,7 +8,8 @@
 import * as monaco from 'monaco-editor'
 import 'monaco-editor/esm/vs/basic-languages/typescript/typescript.contribution'
 
-import { less_declare, path_declare, crypto_declare, url_declare, cloudsdk_declare, axios_declare, less_api_database_declare, mongodb_declare } from './types/index'
+import { less_declare } from './types/index'
+import { loadPackageTypings } from '@/api/func'
 
 // compiler options
 monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
@@ -21,13 +22,6 @@ monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
   // typeRoots: ['node_modules/@types']
 })
 
-monaco.languages.typescript.typescriptDefaults.addExtraLib(crypto_declare, 'file:///node_modules/@types/crypto/index.d.ts')
-monaco.languages.typescript.typescriptDefaults.addExtraLib(less_api_database_declare, 'file:///node_modules/@types/less-api-database/index.d.ts')
-monaco.languages.typescript.typescriptDefaults.addExtraLib(mongodb_declare, 'file:///node_modules/@types/mongodb/index.d.ts')
-monaco.languages.typescript.typescriptDefaults.addExtraLib(cloudsdk_declare, 'file:///node_modules/@/cloud-sdk/index.d.ts')
-monaco.languages.typescript.typescriptDefaults.addExtraLib(axios_declare, 'file:///node_modules/@types/axios/index.d.ts')
-monaco.languages.typescript.typescriptDefaults.addExtraLib(path_declare, 'file:///node_modules/@types/path/index.d.ts')
-monaco.languages.typescript.typescriptDefaults.addExtraLib(url_declare, 'file:///node_modules/@types/url/index.d.ts')
 monaco.languages.typescript.typescriptDefaults.addExtraLib(less_declare, 'globals.d.ts')
 
 export default {
@@ -53,6 +47,8 @@ export default {
     }
   },
   mounted() {
+    this.loadDefaultDeclarations()
+
     this.editor = monaco.editor.create(this.$refs.jseditor, {
       lineNumbers: 'on',
       roundedSelection: true,
@@ -76,6 +72,33 @@ export default {
   methods: {
     getValue() {
       return this.editor.getValue()
+    },
+    async loadDefaultDeclarations(packageName) {
+      this.loadDeclaration('@')
+      this.loadDeclaration('less-api-database')
+      this.loadDeclaration('axios')
+      this.loadDeclaration('@types/node')
+      this.loadDeclaration('mongodb')
+      this.loadDeclaration('moment')
+    },
+    async loadDeclaration(packageName) {
+      const r = await loadPackageTypings(packageName)
+      console.log(r)
+      if (r.code) {
+        return
+      }
+
+      r.data.forEach(lib => {
+        console.log(lib)
+        this.addExtraLib(lib)
+      })
+    },
+    async addExtraLib(lib) {
+      const { path, content } = lib
+      monaco.languages
+        .typescript
+        .typescriptDefaults
+        .addExtraLib(content, `file:///node_modules/${path}`)
     }
   }
 }
