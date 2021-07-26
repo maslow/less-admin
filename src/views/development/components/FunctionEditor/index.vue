@@ -8,8 +8,8 @@
 import * as monaco from 'monaco-editor'
 import 'monaco-editor/esm/vs/basic-languages/typescript/typescript.contribution'
 
-import { less_declare } from './types/index'
-import { loadPackageTypings } from '@/api/func'
+import { AutoImportTypings } from './types/index'
+import _ from 'lodash'
 
 // compiler options
 monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
@@ -22,7 +22,7 @@ monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
   // typeRoots: ['node_modules/@types']
 })
 
-monaco.languages.typescript.typescriptDefaults.addExtraLib(less_declare, 'globals.d.ts')
+const autoImportTypings = new AutoImportTypings()
 
 export default {
   name: 'FunctionEditor',
@@ -67,8 +67,11 @@ export default {
 
     this.editor.onDidChangeModelContent(e => {
       this.$emit('input', this.editor?.getValue())
+      this.parseImports(this.getValue())
     })
-    this.loadDefaultDeclarations()
+
+    // 加载必要的类型文件
+    autoImportTypings.loadDefaults()
 
     // listen Ctrl+S
     document.addEventListener('keydown', this.save, false)
@@ -80,44 +83,10 @@ export default {
     getValue() {
       return this.editor?.getValue()
     },
-    async loadDefaultDeclarations(packageName) {
-      this.loadDeclaration('@')
-      this.loadDeclaration('less-api-database')
-      this.loadDeclaration('axios')
-      this.loadDeclaration('@types/node')
-      this.loadDeclaration('mongodb')
-      this.loadDeclaration('moment')
-    },
-    async loadDeclaration(packageName) {
-      const r = await loadPackageTypings(packageName)
-      if (r.code) {
-        return
-      }
-
-      r.data.forEach(async lib => {
-        await this.addExtraLib(lib)
-      })
-    },
-    async addExtraLib(lib) {
-      const { path, content } = lib
-
-      const fullpath = `file:///node_modules/${path}`
-
-      const defaults = monaco.languages.typescript.typescriptDefaults
-      const loaded = defaults.getExtraLibs()
-      const keys = Object.keys(loaded)
-
-      if (keys.includes(fullpath)) {
-        console.log(`${path} already exists in ts extralib`)
-        return
-      }
-      try {
-        defaults.addExtraLib(content, fullpath)
-      } catch (error) {
-        console.log(error, fullpath, keys)
-        throw error
-      }
-    },
+    /**
+     * 当代码变化时，尝试解析是否有新 import 的依赖，并加载其类型文件
+     */
+    parseImports: _.debounce(autoImportTypings.parse, 2000, { leading: true }).bind(autoImportTypings),
     save(e) {
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         this.$emit('save', this.getValue())
