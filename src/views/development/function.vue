@@ -1,5 +1,5 @@
 <template>
-  <div class="components-container">
+  <div class="app-container">
     <div v-if="func" class="header">
       <span style="font-size: 26px;line-height: 40px"><b>{{ func.label }}</b> </span>
       <el-tag style="margin-left: 20px" size="small" type="success">{{ func.name }}</el-tag>
@@ -25,7 +25,7 @@
 
     <div style="display: flex;">
       <div class="editor-container">
-        <function-editor v-model="value" :height="800" :dark="false" />
+        <function-editor v-model="value" :height="700" :dark="false" />
       </div>
       <div class="lastest-logs">
         <el-card shadow="never" :body-style="{ padding: '20px' }">
@@ -325,6 +325,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.app-container {
+  padding-top: 10px;
+}
 .editor-container {
   position: relative;
   height: 100%;

@@ -42,7 +42,7 @@
           <span>{{ row._id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="名称" min-width="150px">
+      <el-table-column label="名称" width="150">
         <template slot-scope="{row}">
           <span class="link-type" @click="showUpdateForm(row)">{{ row.name }}</span>
         </template>
@@ -53,10 +53,10 @@
           <el-tag v-if="row.type === 'timer'" type="success">定时器</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="间隔" align="center">
+      <el-table-column label="间隔/事件" align="center">
         <template slot-scope="{row}">
-          <span v-if="row.duration">{{ row.duration }}</span>
-          <span v-else>-</span>
+          <span v-if="row.type === 'event'">{{ row.event }}</span>
+          <span v-if="row.type === 'timer'">{{ row.duration }}</span>
         </template>
       </el-table-column>
       <el-table-column label="描述" align="center">
@@ -317,6 +317,10 @@ export default {
 
         const params = { ...this.form, func_id: this.funcId }
         console.log(params)
+
+        if (params.event.type === 'event') {
+          params.duration = undefined
+        }
 
         // 执行创建请求
         const r = await db.collection('triggers')

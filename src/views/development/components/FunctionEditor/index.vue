@@ -27,10 +27,10 @@ monaco.languages.typescript.typescriptDefaults.addExtraLib(less_declare, 'global
 export default {
   name: 'FunctionEditor',
   /* eslint-disable vue/require-prop-types */
-  props: ['value', 'height', 'dark'],
+  props: ['value', 'height', 'dark', 'name'],
   data() {
     return {
-      editor: false
+      editor: {}
     }
   },
   computed: {
@@ -40,15 +40,15 @@ export default {
   },
   watch: {
     value(value) {
-      const editorValue = this.editor.getValue()
+      const editorValue = this.editor?.getValue()
       if (value !== editorValue) {
         this.editor.setValue(this.value)
       }
     }
   },
   mounted() {
-    this.loadDefaultDeclarations()
-
+    const now = Date.now()
+    const filename = `index-${now}.ts`
     this.editor = monaco.editor.create(this.$refs.jseditor, {
       lineNumbers: 'on',
       roundedSelection: true,
@@ -62,16 +62,17 @@ export default {
       smoothScrolling: true,
       renderWhitespace: 'selection',
       tabSize: 2,
-      model: monaco.editor.createModel('', 'typescript', monaco.Uri.parse('index.ts'))
+      model: monaco.editor.createModel(this.value, 'typescript', monaco.Uri.parse(filename))
     })
 
     this.editor.onDidChangeModelContent(e => {
-      this.$emit('input', this.editor.getValue())
+      this.$emit('input', this.editor?.getValue())
     })
+    this.loadDefaultDeclarations()
   },
   methods: {
     getValue() {
-      return this.editor.getValue()
+      return this.editor?.getValue()
     },
     async loadDefaultDeclarations(packageName) {
       this.loadDeclaration('@')
@@ -83,22 +84,33 @@ export default {
     },
     async loadDeclaration(packageName) {
       const r = await loadPackageTypings(packageName)
-      console.log(r)
       if (r.code) {
         return
       }
 
-      r.data.forEach(lib => {
-        console.log(lib)
-        this.addExtraLib(lib)
+      r.data.forEach(async lib => {
+        await this.addExtraLib(lib)
       })
     },
     async addExtraLib(lib) {
       const { path, content } = lib
-      monaco.languages
-        .typescript
-        .typescriptDefaults
-        .addExtraLib(content, `file:///node_modules/${path}`)
+
+      const fullpath = `file:///node_modules/${path}`
+
+      const defaults = monaco.languages.typescript.typescriptDefaults
+      const loaded = defaults.getExtraLibs()
+      const keys = Object.keys(loaded)
+
+      if (keys.includes(fullpath)) {
+        console.log(`${path} already exists in ts extralib`)
+        return
+      }
+      try {
+        defaults.addExtraLib(content, fullpath)
+      } catch (error) {
+        console.log(error, fullpath, keys)
+        throw error
+      }
     }
   }
 }

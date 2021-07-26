@@ -185,6 +185,8 @@ import { db } from '@/api/cloud'
 import XLSX from 'xlsx'
 
 const defaultCode = `
+import cloud from '@/cloud-sdk'
+
 exports.main = async function (ctx) {
   // body, query 为请求参数, auth 是授权对象
   const { auth, body, query } = ctx
