@@ -19,13 +19,13 @@
         style="margin-left: 20px;"
         :disabled="loading || !func"
         @click="updateFunc"
-      >保存</el-button>
-      <el-button size="medium" style="float: right;" type="primary" @click="showDebugPanel = true">显示调试面板</el-button>
+      >保存(S)</el-button>
+      <el-button size="medium" style="float: right;" type="primary" @click="showDebugPanel = true">显示调试面板(J)</el-button>
     </div>
 
     <div style="display: flex;">
       <div class="editor-container">
-        <function-editor v-model="value" :height="700" :dark="false" />
+        <function-editor v-model="value" :height="700" :dark="false" @save="updateFunc" />
       </div>
       <div class="lastest-logs">
         <el-card shadow="never" :body-style="{ padding: '20px' }">
@@ -66,7 +66,7 @@
             style="margin-left: 10px"
             :disabled="loading || !func"
             @click="launch"
-          >运行</el-button>
+          >运行(B)</el-button>
         </div>
         <div class="editor">
           <json-editor
@@ -169,6 +169,12 @@ export default {
     this.getLatestLogs()
     this.setTagViewTitle()
   },
+  mounted() {
+    document.addEventListener('keydown', this.bindShortKey, false)
+  },
+  beforeDestroy() {
+    document.removeEventListener('keydown', this.bindShortKey, false)
+  },
   methods: {
     /**
      * 获取函数数据
@@ -232,11 +238,7 @@ export default {
       if (showTip) {
         await this.getFunction()
         await this.addFunctionHistory()
-        this.$notify({
-          type: 'success',
-          title: '保存',
-          message: '保存云函数成功!'
-        })
+        this.$message.success('已保存')
       }
 
       this.loading = false
@@ -253,6 +255,13 @@ export default {
       const param = this.parseInvokeParam(this.invokeParams)
 
       const res = await cloud.invokeFunction(this.func.name, param, true)
+        .catch(err => {
+          console.error(err)
+          this.$message.warning('运行失败： ' + err)
+        })
+
+      this.$message.success('运行成功')
+
       this.invokeResult = res
       this.getLatestLogs()
     },
@@ -319,6 +328,20 @@ export default {
       }
 
       return param
+    },
+    // 快捷键绑定
+    bindShortKey(e) {
+      // Ctrl + b 为调试运行，并弹出
+      if ((e.ctrlKey || e.metaKey) && e.key === 'j') {
+        this.showDebugPanel = !this.showDebugPanel
+        e.preventDefault()
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+        this.showDebugPanel = true
+        this.launch()
+        e.preventDefault()
+      }
     }
   }
 }

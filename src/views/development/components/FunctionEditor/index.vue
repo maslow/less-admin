@@ -69,6 +69,12 @@ export default {
       this.$emit('input', this.editor?.getValue())
     })
     this.loadDefaultDeclarations()
+
+    // listen Ctrl+S
+    document.addEventListener('keydown', this.save, false)
+  },
+  beforeDestroy() {
+    document.removeEventListener('keydown', this.save, false)
   },
   methods: {
     getValue() {
@@ -110,6 +116,12 @@ export default {
       } catch (error) {
         console.log(error, fullpath, keys)
         throw error
+      }
+    },
+    save(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        this.$emit('save', this.getValue())
+        e.preventDefault()
       }
     }
   }
