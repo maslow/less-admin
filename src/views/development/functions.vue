@@ -12,15 +12,6 @@
       <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         搜索
       </el-button>
-      <el-button
-        :loading="downloadLoading"
-        class="filter-item"
-        type="primary"
-        icon="el-icon-download"
-        @click="handleDownload"
-      >
-        导出
-      </el-button>
       <el-button v-permission="'function.create'" class="filter-item" type="primary" icon="el-icon-search" @click="showCreateForm">
         新建函数
       </el-button>
@@ -182,7 +173,6 @@
 <script>
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 import { db } from '@/api/cloud'
-import XLSX from 'xlsx'
 
 const defaultCode = `
 import cloud from '@/cloud-sdk'
@@ -461,28 +451,6 @@ export default {
     // 设置触发器
     async handleTriggers(row) {
       this.$router.push(`triggers/${row._id}`)
-    },
-    // 导出数据
-    handleDownload() {
-      this.downloadLoading = true
-
-      if (!this.list || !this.list.length) {
-        this.$message('函数列表暂无数据')
-        this.downloadLoading = false
-        return
-      }
-
-      const tableHeaders = Object.keys(this.list[0])
-
-      const tableData = this.list.map(li => Object.values(li))
-      tableData.unshift(tableHeaders)
-
-      const ws = XLSX.utils.aoa_to_sheet(tableData)
-      const wb = XLSX.utils.book_new()
-      XLSX.utils.book_append_sheet(wb, ws, '云函数')
-      XLSX.writeFile(wb, '云函数.xlsx')
-
-      this.downloadLoading = false
     },
     // 搜索建议标签
     async suggestTags(queryString, cb) {

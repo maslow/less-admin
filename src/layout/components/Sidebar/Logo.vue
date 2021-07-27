@@ -29,9 +29,9 @@ export default {
   },
   data() {
     return {
-      title: 'Less Admin',
+      title: 'LaF 开发运维平台',
       logo:
-        'https://work.zhuo-zhuo.com/file/data/23ttprpxmavkkuf6nttc/PHID-FILE-vzv6dyqo3ev2tmngx7mu/logoL)?imageView2/1/w/80/h/80'
+        'https://static.dingtalk.com/media/lALPDe7szaMXyv3NAr3NApw_668_701.png'
     }
   }
 }

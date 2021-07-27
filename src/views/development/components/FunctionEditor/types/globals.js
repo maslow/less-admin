@@ -6,6 +6,17 @@ declare class FunctionConsole {
   log(...params: any[]): void;
 }
 
+interface File {
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  size: number;
+  destination: string;
+  filename: string;
+  path: string;
+}
+
 
 interface FunctionContext {
   auth?: {

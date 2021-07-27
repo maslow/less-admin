@@ -125,14 +125,14 @@
 </template>
 
 <script>
-import { db } from '@/api/cloud'
+import { dbm_cloud } from '@/api/cloud'
 import { getCollections, getCollectionIndexes, deleCollectionIndexe, setCollectionIndexes } from '@/api/collec'
 // import { TYPES } from '@/utils/types'
 
 import MiniPagination from '@/components/Pagination/mini'
 import JsonEditor from './components/JsonEditor/rule'
 
-// const
+const db = dbm_cloud.database()
 
 export default {
   name: 'CollectionManagement',

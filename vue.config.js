@@ -7,7 +7,7 @@ function resolve(dir) {
   return path.join(__dirname, dir)
 }
 
-const name = defaultSettings.title || 'Less Admin' // page title
+const name = defaultSettings.title || 'LaF 开发控制台' // page title
 
 // If your port is set to 80,
 // use administrator privileges to execute the command line.
@@ -40,9 +40,15 @@ module.exports = {
     // before: require('./mock/mock-server.js'),
     proxy: {
       // detail: https://cli.vuejs.org/config/#devserver-proxy
+      [process.env.VUE_APP_BASE_API_APP]: {
+        target: 'http://localhost:8000/',
+        changeOrigin: true,
+        pathRewrite: {
+          ['^' + process.env.VUE_APP_BASE_API_APP]: ''
+        }
+      },
       [process.env.VUE_APP_BASE_API]: {
-        // target: `https://api.vip-design.net/prod-api`,
-        target: 'http://localhost:8080/',
+        target: 'http://localhost:9000/',
         changeOrigin: true,
         pathRewrite: {
           ['^' + process.env.VUE_APP_BASE_API]: ''

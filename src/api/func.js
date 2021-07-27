@@ -18,7 +18,7 @@ export function launchFunction(functionName, data, debug = false) {
  */
 export function loadPackageTypings(packageName) {
   return request({
-    url: `/typing/package?packageName=${packageName}`,
+    url: `/app/typing/package?packageName=${packageName}`,
     method: 'GET'
   })
 }

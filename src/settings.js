@@ -1,5 +1,5 @@
 module.exports = {
-  title: 'Less Admin',
+  title: 'LaF 开发运维平台',
 
   /**
    * @type {boolean} true | false

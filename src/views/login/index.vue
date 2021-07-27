@@ -9,7 +9,7 @@
       label-position="left"
     >
       <div class="title-container">
-        <h3 class="title">Less Admin</h3>
+        <h3 class="title">LaF 开发控制台</h3>
       </div>
 
       <el-form-item prop="username">
@@ -67,10 +67,10 @@
 
       <div style="position:relative">
         <div class="tips">
-          <span>Username : less</span>
+          <span>Username: laf-sys</span>
         </div>
         <div class="tips">
-          <span>Password : less123</span>
+          <span>Password: laf-sys</span>
         </div>
       </div>
     </el-form>
