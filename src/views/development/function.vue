@@ -109,7 +109,8 @@
 import FunctionLogDetail from './components/FunctionLogDetail'
 import FunctionEditor from './components/FunctionEditor'
 import jsonEditor from './components/JsonEditor/param'
-import { db, cloud } from '@/api/cloud'
+import { db } from '@/api/cloud'
+import { launchFunction } from '@/api/func'
 
 const defaultParamValue = {
   code: 'less'
@@ -254,7 +255,8 @@ export default {
 
       const param = this.parseInvokeParam(this.invokeParams)
 
-      const res = await cloud.invokeFunction(this.func.name, param, true)
+      const res = await launchFunction(this.func.name, param, true)
+      // const res = await cloud.invokeFunction(this.func.name, param, true)
         .catch(err => {
           console.error(err)
           this.$message.warning('运行失败： ' + err)

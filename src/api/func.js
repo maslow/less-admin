@@ -5,7 +5,7 @@ import request from '@/utils/request'
  */
 export function launchFunction(functionName, data, debug = false) {
   return request({
-    url: `/func/invoke/${functionName}?debug=${debug}`,
+    url: `/app/func/invoke/${functionName}?debug=${debug}`,
     method: 'post',
     data: data
   })
