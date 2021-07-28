@@ -29,9 +29,9 @@
     </div>
 
     <aside style="margin-top: 15px">
-      <span>请谨慎使用「应用所有规则」，当前无规则验证逻辑，规则配置错误，会导致整个应用都无法访问！</span>
+      <span>请谨慎使用「部署所有规则」，规则配置错误，会导致整个应用都无法访问！</span>
     </aside>
-    <el-button v-permission="'rule.apply'" type="danger" @click="apply">应用所有规则</el-button>
+    <el-button v-permission="'rule.apply'" type="danger" @click="apply">部署策略</el-button>
 
     <!-- 表单 -->
     <el-dialog
@@ -70,7 +70,7 @@
 import JsonEditor from './components/JsonEditor/rule'
 import { db } from '@/api/cloud'
 import $ from 'lodash'
-import { applyRules } from '../../api/user'
+import { deployPolicy } from '../../api/deploy'
 import { array2map } from '@/utils/array'
 
 const defaultValue = '{}'
@@ -115,7 +115,7 @@ export default {
   methods: {
     async getCategories() {
       this.loading = true
-      const r = await db.collection('rules')
+      const r = await db.collection('__rules')
         .field(['category', 'collection'])
         .get()
 
@@ -134,7 +134,7 @@ export default {
     },
     async getRule() {
       this.loading = true
-      const r = await db.collection('rules')
+      const r = await db.collection('__rules')
         .where({
           category: this.category,
           collection: this.collection
@@ -155,7 +155,7 @@ export default {
 
       this.loading = true
       const rule_data = this.value
-      const r = await db.collection('rules')
+      const r = await db.collection('__rules')
         .where({
           category: this.category,
           collection: this.collection
@@ -188,7 +188,7 @@ export default {
       }
       this.loading = true
 
-      const { total } = await db.collection('rules')
+      const { total } = await db.collection('__rules')
         .where({
           category: this.form.category,
           collection: this.form.collection
@@ -199,7 +199,7 @@ export default {
         this.$message('该集合规则已存在！')
         return
       }
-      const r = await db.collection('rules')
+      const r = await db.collection('__rules')
         .add({
           category: this.form.category,
           collection: this.form.collection,
@@ -242,7 +242,7 @@ export default {
 
       this.loading = true
 
-      const r = await db.collection('rules')
+      const r = await db.collection('__rules')
         .where({
           category: this.category,
           collection: this.collection
@@ -263,20 +263,20 @@ export default {
       this.loading = false
     },
     async apply() {
-      const confirm = await this.$confirm('确定应用所有规则？')
+      const confirm = await this.$confirm('确定部署所有规则？')
         .catch(() => false)
 
       if (!confirm) return
 
-      const res = await applyRules()
+      const res = await deployPolicy()
       if (res.data.code) {
-        this.$message('应用失败: ' + res.data.error)
+        this.$message('部署失败: ' + res.data.error)
         return
       }
       this.$notify({
         type: 'success',
-        title: '应用成功',
-        message: '访问规则应用成功！'
+        title: '部署成功',
+        message: '访问策略部署成功！'
       })
     },
     validate() {

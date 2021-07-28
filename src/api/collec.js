@@ -5,7 +5,7 @@ import request from '@/utils/request'
  */
 export function getCollections() {
   return request({
-    url: `/admin/collections`,
+    url: `/dbm/collections`,
     method: 'get'
   })
 }
@@ -15,7 +15,7 @@ export function getCollections() {
  */
 export function getCollectionIndexes(collection = 'functions') {
   return request({
-    url: `/admin/collection/indexes?collection=${collection}`,
+    url: `/dbm/collection/indexes?collection=${collection}`,
     method: 'get'
   })
 }
@@ -27,7 +27,7 @@ export function getCollectionIndexes(collection = 'functions') {
  */
 export function setCollectionIndexes(collection, data) {
   return request({
-    url: `/admin/collection/indexes?collection=${collection}`,
+    url: `/dbm/collection/indexes?collection=${collection}`,
     method: 'post',
     data
   })
@@ -41,7 +41,7 @@ export function setCollectionIndexes(collection, data) {
  */
 export function deleCollectionIndexe(collection, index) {
   return request({
-    url: `/admin/collection/indexes?collection=${collection}&index=${index}`,
+    url: `/dbm/collection/indexes?collection=${collection}&index=${index}`,
     method: 'delete'
   })
 }

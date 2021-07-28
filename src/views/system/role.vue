@@ -124,8 +124,8 @@ export default {
   },
   methods: {
     async getRoles() {
-      const res = await db.collection('roles').get()
-      const { data: permissions } = await db.collection('permissions').get()
+      const res = await db.collection('__roles').get()
+      const { data: permissions } = await db.collection('__permissions').get()
       this.permissions = permissions
       const permsMap = array2map(permissions, 'name')
       this.rolesList = mergeMap2ArrayByKeyArray(permsMap, res.data, 'permissions', 'full_permissions')
@@ -151,7 +151,7 @@ export default {
       })
         .then(async() => {
           const r = await db
-            .collection('roles')
+            .collection('__roles')
             .where({ name: row.name })
             .remove()
           if (!r.ok) return
@@ -170,7 +170,7 @@ export default {
 
       if (isEdit) {
         const { ok } = await db
-          .collection('roles')
+          .collection('__roles')
           .where({ _id: this.role._id })
           .update({
             name: this.role.name,
@@ -181,7 +181,7 @@ export default {
         if (!ok) return
         this.getRoles()
       } else {
-        const { ok } = await db.collection('roles').add(this.role)
+        const { ok } = await db.collection('__roles').add(this.role)
         if (!ok) return
         this.getRoles()
       }

@@ -183,7 +183,7 @@ export default {
       const func_id = this.func_id
       this.loading = true
       const r = await db
-        .collection('functions')
+        .collection('__functions')
         .where({ _id: func_id })
         .getOne()
 
@@ -219,7 +219,7 @@ export default {
         param = JSON.stringify(this.invokeParams)
       }
       const r = await db
-        .collection('functions')
+        .collection('__functions')
         .where({
           _id: this.func._id
         })
@@ -272,7 +272,7 @@ export default {
       this.loading = true
 
       // 执行数据查询
-      const res = await db.collection('function_logs')
+      const res = await db.collection('__function_logs')
         .where({ func_id: this.func_id })
         .limit(20)
         .skip(0)
@@ -287,7 +287,7 @@ export default {
      */
     async addFunctionHistory() {
       const data = Object.assign({}, this.func)
-      await db.collection('function_history')
+      await db.collection('__function_history')
         .add({
           func_id: this.func._id,
           data: data,

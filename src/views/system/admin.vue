@@ -123,7 +123,7 @@ export default {
   methods: {
     /** 获取管理员列表 */
     async getAdmins() {
-      const res = await db.collection('admins')
+      const res = await db.collection('__admins')
         .get()
 
       const rolesMap = array2map(this.roles, 'name')
@@ -131,7 +131,7 @@ export default {
     },
     /** 获取所有的角色列表 */
     async getRoles() {
-      const res = await db.collection('roles').get()
+      const res = await db.collection('__roles').get()
       this.roles = res.data || []
     },
     /** 打开添加表单  */
@@ -155,7 +155,7 @@ export default {
       })
         .then(async() => {
           const { ok } = await db
-            .collection('admins')
+            .collection('__admins')
             .where({ _id: row._id })
             .remove()
           if (!ok) return

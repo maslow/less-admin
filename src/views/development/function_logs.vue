@@ -154,7 +154,7 @@ export default {
       }
 
       // 执行数据查询
-      const res = await db.collection('function_logs')
+      const res = await db.collection('__function_logs')
         .where(query)
         .limit(limit)
         .skip((page - 1) * limit)
@@ -165,7 +165,7 @@ export default {
       this.list = res.data
 
       // 获取数据总数
-      const { total } = await db.collection('function_logs')
+      const { total } = await db.collection('__function_logs')
         .where(query)
         .limit(limit)
         .skip((page - 1) * limit)
@@ -185,7 +185,7 @@ export default {
       await this.$confirm('确认要删除此数据？', '删除确认')
 
       // 执行删除请求
-      const r = await db.collection('function_logs')
+      const r = await db.collection('__function_logs')
         .where({ _id: row._id })
         .remove()
 

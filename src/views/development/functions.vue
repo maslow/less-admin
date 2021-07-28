@@ -268,7 +268,7 @@ export default {
   methods: {
     /** 获取所有标签 */
     async getAllTags() {
-      const r = await db.collection('functions')
+      const r = await db.collection('__functions')
         .field(['tags'])
         .where({
           tags: db.command.exists(true)
@@ -303,7 +303,7 @@ export default {
       }
 
       // 执行数据查询
-      const res = await db.collection('functions')
+      const res = await db.collection('__functions')
         .where(query)
         .limit(limit)
         .skip((page - 1) * limit)
@@ -313,7 +313,7 @@ export default {
       this.list = res.data
 
       // 获取数据总数
-      const { total } = await db.collection('functions')
+      const { total } = await db.collection('__functions')
         .where(query)
         .limit(limit)
         .skip((page - 1) * limit)
@@ -346,7 +346,7 @@ export default {
         delete data['_tag_input']
 
         // 执行创建请求
-        const r = await db.collection('functions')
+        const r = await db.collection('__functions')
           .add(data)
 
         if (!r.id) {
@@ -383,7 +383,7 @@ export default {
         if (!valid) { return }
 
         // 执行创建请求
-        const r = await db.collection('functions')
+        const r = await db.collection('__functions')
           .where({ _id: this.form._id })
           .update({
             name: this.form.name,
@@ -419,7 +419,7 @@ export default {
       await this.$confirm('确认要删除此数据？', '删除确认')
 
       // 执行删除请求
-      const r = await db.collection('functions')
+      const r = await db.collection('__functions')
         .where({ _id: row._id })
         .remove()
 
