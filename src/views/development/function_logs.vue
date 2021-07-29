@@ -93,7 +93,9 @@
 <script>
 import FunctionLogDetail from './components/FunctionLogDetail'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
-import { db } from '@/api/cloud'
+import { dbm_cloud } from '@/api/cloud'
+
+const db = dbm_cloud.database()
 
 export default {
   name: 'FunctionlogsListPage',
