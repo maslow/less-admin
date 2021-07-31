@@ -130,7 +130,7 @@ import { getCollections, getCollectionIndexes, deleCollectionIndexe, setCollecti
 // import { TYPES } from '@/utils/types'
 
 import MiniPagination from '@/components/Pagination/mini'
-import JsonEditor from './components/JsonEditor/rule'
+import JsonEditor from '@/components/JsonEditor/param'
 
 const db = dbm_cloud.database()
 

@@ -6,7 +6,7 @@
 
 <script>
 import * as monaco from 'monaco-editor'
-import { rules_schemas } from './schemas'
+import { rules_schemas } from '@/components/JsonEditor/schemas'
 // configure the JSON language support with schemas and schema associations
 monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
   validate: true,

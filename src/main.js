@@ -21,9 +21,11 @@ import './utils/error-log' // error log
 import * as filters from './filters' // global filters
 import permission_directive from '@/directive/permission/index.js' // 权限判断指令
 import role_directive from '@/directive/role/index.js' // 权限判断指令
+import clipboard from '@/directive/clipboard/index'
 
 Vue.use(permission_directive)
 Vue.use(role_directive)
+Vue.use(clipboard)
 
 Vue.use(Element, {
   size: Cookies.get('size') || 'medium' // set element-ui default size

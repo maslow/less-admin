@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
     <div v-if="func" class="header">
-      <span style="font-size: 26px;line-height: 40px"><b>{{ func.label }}</b> </span>
-      <el-tag style="margin-left: 20px" size="small" type="success">{{ func.name }}</el-tag>
+      <span style="font-size: 26px;line-height: 40px;"><b>{{ func.label }}</b> </span>
+      <el-tag v-clipboard:message="func.name" v-clipboard:success="onCopy" style="margin-left: 20px; " size="small" type="success">{{ func.name }}</el-tag>
       <el-button
         v-permission="'function.read'"
         style="margin-left: 20px"
@@ -107,8 +107,8 @@
 
 <script>
 import FunctionLogDetail from './components/FunctionLogDetail'
-import FunctionEditor from './components/FunctionEditor'
-import jsonEditor from './components/JsonEditor/param'
+import FunctionEditor from '@/components/FunctionEditor'
+import jsonEditor from '@/components/JsonEditor/param'
 import { db, dbm_cloud } from '@/api/cloud'
 import { launchFunction } from '@/api/func'
 import { publishFunctions } from '@/api/publish'
@@ -346,6 +346,9 @@ export default {
         this.launch()
         e.preventDefault()
       }
+    },
+    onCopy() {
+      this.$message.success('函数名已复制！')
     }
   }
 }

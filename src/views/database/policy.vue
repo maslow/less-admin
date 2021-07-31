@@ -67,7 +67,7 @@
 </template>
 
 <script>
-import JsonEditor from './components/JsonEditor/rule'
+import JsonEditor from '@/components/JsonEditor/rule'
 import { db } from '@/api/cloud'
 import $ from 'lodash'
 import { publishPolicy } from '../../api/publish'
