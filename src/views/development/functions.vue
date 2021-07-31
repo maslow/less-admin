@@ -246,7 +246,6 @@ export default {
         keyword: undefined,
         tag: ''
       },
-      showReviewer: false,
       form: getDefaultFormValue(),
       dialogFormVisible: false,
       dialogStatus: '',
@@ -255,7 +254,6 @@ export default {
         create: '创建'
       },
       rules: formRules,
-      downloadLoading: false,
       all_tags: []
     }
   },

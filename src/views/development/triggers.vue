@@ -157,7 +157,7 @@
 <script>
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 import { db } from '@/api/cloud'
-import { applyTrigger } from '@/api/trigger'
+import { publishTriggers } from '@/api/publish'
 
 // 默认化创建表单的值
 function getDefaultFormValue() {
@@ -211,7 +211,6 @@ export default {
         limit: 20,
         keyword: undefined
       },
-      showReviewer: false,
       form: getDefaultFormValue(),
       dialogFormVisible: false,
       dialogStatus: '',
@@ -219,8 +218,7 @@ export default {
         update: '编辑',
         create: '创建'
       },
-      rules: formRules,
-      downloadLoading: false
+      rules: formRules
     }
   },
   async created() {
@@ -292,9 +290,9 @@ export default {
       this.total = total
       this.listLoading = false
     },
-    // 应用触发器配置
+    // 发布触发器配置
     async applyTrigger(triggerId) {
-      await applyTrigger(triggerId)
+      await publishTriggers()
     },
     // 搜索
     handleFilter() {
@@ -318,8 +316,12 @@ export default {
         const params = { ...this.form, func_id: this.funcId }
         console.log(params)
 
-        if (params.event.type === 'event') {
+        if (params.type === 'event') {
           params.duration = undefined
+        }
+
+        if (params.type === 'timer') {
+          params.event = undefined
         }
 
         // 执行创建请求
@@ -364,8 +366,8 @@ export default {
           .update({
             name: this.form.name,
             type: this.form.type,
-            event: this.form.event,
-            duration: this.form.duration,
+            event: this.form.type === 'event' ? this.form.event : undefined,
+            duration: this.form.type === 'timer' ? this.form.duration : undefined,
             desc: this.form.desc,
             status: this.form.status,
             updated_at: Date.now()

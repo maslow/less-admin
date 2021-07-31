@@ -29,9 +29,9 @@
     </div>
 
     <aside style="margin-top: 15px">
-      <span>请谨慎使用「部署所有规则」，规则配置错误，会导致整个应用都无法访问！</span>
+      <span>请谨慎使用「发布所有规则」，规则配置错误，会导致整个应用都无法访问！</span>
     </aside>
-    <el-button v-permission="'rule.apply'" type="danger" @click="apply">部署策略</el-button>
+    <el-button v-permission="'rule.apply'" type="danger" @click="apply">发布所有策略</el-button>
 
     <!-- 表单 -->
     <el-dialog
@@ -70,7 +70,7 @@
 import JsonEditor from './components/JsonEditor/rule'
 import { db } from '@/api/cloud'
 import $ from 'lodash'
-import { deployPolicy } from '../../api/deploy'
+import { publishPolicy } from '../../api/publish'
 import { array2map } from '@/utils/array'
 
 const defaultValue = '{}'
@@ -263,20 +263,20 @@ export default {
       this.loading = false
     },
     async apply() {
-      const confirm = await this.$confirm('确定部署所有规则？')
+      const confirm = await this.$confirm('确定发布所有规则？')
         .catch(() => false)
 
       if (!confirm) return
 
-      const res = await deployPolicy()
+      const res = await publishPolicy()
       if (res.data.code) {
-        this.$message('部署失败: ' + res.data.error)
+        this.$message('发布失败: ' + res.data.error)
         return
       }
       this.$notify({
         type: 'success',
-        title: '部署成功',
-        message: '访问策略部署成功！'
+        title: '发布成功',
+        message: '访问策略发布成功！'
       })
     },
     validate() {

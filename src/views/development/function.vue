@@ -109,11 +109,12 @@
 import FunctionLogDetail from './components/FunctionLogDetail'
 import FunctionEditor from './components/FunctionEditor'
 import jsonEditor from './components/JsonEditor/param'
-import { db } from '@/api/cloud'
+import { db, dbm_cloud } from '@/api/cloud'
 import { launchFunction } from '@/api/func'
+import { publishFunctions } from '@/api/publish'
 
 const defaultParamValue = {
-  code: 'less'
+  code: 'laf'
 }
 export default {
   name: 'FunctionEditorPage',
@@ -253,10 +254,11 @@ export default {
         return
       }
 
+      await publishFunctions()
+
       const param = this.parseInvokeParam(this.invokeParams)
 
       const res = await launchFunction(this.func.name, param, true)
-      // const res = await cloud.invokeFunction(this.func.name, param, true)
         .catch(err => {
           console.error(err)
           this.$message.warning('运行失败： ' + err)
@@ -272,7 +274,7 @@ export default {
      */
     async getLatestLogs() {
       this.loading = true
-
+      const db = dbm_cloud.database()
       // 执行数据查询
       const res = await db.collection('__function_logs')
         .where({ func_id: this.func_id })
