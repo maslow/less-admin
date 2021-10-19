@@ -1,6 +1,6 @@
 ## WARNING! (警告)
 
-本仓库不再更新和维护，相关功能已并入主仓库 [`less-framework`](https://github.com/Maslow/less-framework) 。
+本仓库不再更新和维护，相关功能已并入主仓库 [`laf`](https://github.com/Maslow/laf) 。
 
 ## 前序准备
 
